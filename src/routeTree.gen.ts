@@ -11,7 +11,15 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as OtpRouteImport } from './routes/otp'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ConsumerRouteImport } from './routes/consumer'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ConsumerIndexRouteImport } from './routes/consumer.index'
+import { Route as ConsumerServicesRouteImport } from './routes/consumer.services'
+import { Route as ConsumerProfileRouteImport } from './routes/consumer.profile'
+import { Route as ConsumerHistoryRouteImport } from './routes/consumer.history'
+import { Route as ConsumerWorkerIdRouteImport } from './routes/consumer.worker.$id'
+import { Route as ConsumerPaymentIdRouteImport } from './routes/consumer.payment.$id'
+import { Route as ConsumerOrderIdRouteImport } from './routes/consumer.order.$id'
 
 const OtpRoute = OtpRouteImport.update({
   id: '/otp',
@@ -23,38 +31,135 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConsumerRoute = ConsumerRouteImport.update({
+  id: '/consumer',
+  path: '/consumer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConsumerIndexRoute = ConsumerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ConsumerRoute,
+} as any)
+const ConsumerServicesRoute = ConsumerServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
+  getParentRoute: () => ConsumerRoute,
+} as any)
+const ConsumerProfileRoute = ConsumerProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => ConsumerRoute,
+} as any)
+const ConsumerHistoryRoute = ConsumerHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => ConsumerRoute,
+} as any)
+const ConsumerWorkerIdRoute = ConsumerWorkerIdRouteImport.update({
+  id: '/worker/$id',
+  path: '/worker/$id',
+  getParentRoute: () => ConsumerRoute,
+} as any)
+const ConsumerPaymentIdRoute = ConsumerPaymentIdRouteImport.update({
+  id: '/payment/$id',
+  path: '/payment/$id',
+  getParentRoute: () => ConsumerRoute,
+} as any)
+const ConsumerOrderIdRoute = ConsumerOrderIdRouteImport.update({
+  id: '/order/$id',
+  path: '/order/$id',
+  getParentRoute: () => ConsumerRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/consumer': typeof ConsumerRouteWithChildren
   '/login': typeof LoginRoute
   '/otp': typeof OtpRoute
+  '/consumer/history': typeof ConsumerHistoryRoute
+  '/consumer/profile': typeof ConsumerProfileRoute
+  '/consumer/services': typeof ConsumerServicesRoute
+  '/consumer/': typeof ConsumerIndexRoute
+  '/consumer/order/$id': typeof ConsumerOrderIdRoute
+  '/consumer/payment/$id': typeof ConsumerPaymentIdRoute
+  '/consumer/worker/$id': typeof ConsumerWorkerIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/otp': typeof OtpRoute
+  '/consumer/history': typeof ConsumerHistoryRoute
+  '/consumer/profile': typeof ConsumerProfileRoute
+  '/consumer/services': typeof ConsumerServicesRoute
+  '/consumer': typeof ConsumerIndexRoute
+  '/consumer/order/$id': typeof ConsumerOrderIdRoute
+  '/consumer/payment/$id': typeof ConsumerPaymentIdRoute
+  '/consumer/worker/$id': typeof ConsumerWorkerIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/consumer': typeof ConsumerRouteWithChildren
   '/login': typeof LoginRoute
   '/otp': typeof OtpRoute
+  '/consumer/history': typeof ConsumerHistoryRoute
+  '/consumer/profile': typeof ConsumerProfileRoute
+  '/consumer/services': typeof ConsumerServicesRoute
+  '/consumer/': typeof ConsumerIndexRoute
+  '/consumer/order/$id': typeof ConsumerOrderIdRoute
+  '/consumer/payment/$id': typeof ConsumerPaymentIdRoute
+  '/consumer/worker/$id': typeof ConsumerWorkerIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/otp'
+  fullPaths:
+    | '/'
+    | '/consumer'
+    | '/login'
+    | '/otp'
+    | '/consumer/history'
+    | '/consumer/profile'
+    | '/consumer/services'
+    | '/consumer/'
+    | '/consumer/order/$id'
+    | '/consumer/payment/$id'
+    | '/consumer/worker/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/otp'
-  id: '__root__' | '/' | '/login' | '/otp'
+  to:
+    | '/'
+    | '/login'
+    | '/otp'
+    | '/consumer/history'
+    | '/consumer/profile'
+    | '/consumer/services'
+    | '/consumer'
+    | '/consumer/order/$id'
+    | '/consumer/payment/$id'
+    | '/consumer/worker/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/consumer'
+    | '/login'
+    | '/otp'
+    | '/consumer/history'
+    | '/consumer/profile'
+    | '/consumer/services'
+    | '/consumer/'
+    | '/consumer/order/$id'
+    | '/consumer/payment/$id'
+    | '/consumer/worker/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConsumerRoute: typeof ConsumerRouteWithChildren
   LoginRoute: typeof LoginRoute
   OtpRoute: typeof OtpRoute
 }
@@ -75,6 +180,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/consumer': {
+      id: '/consumer'
+      path: '/consumer'
+      fullPath: '/consumer'
+      preLoaderRoute: typeof ConsumerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -82,11 +194,85 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/consumer/': {
+      id: '/consumer/'
+      path: '/'
+      fullPath: '/consumer/'
+      preLoaderRoute: typeof ConsumerIndexRouteImport
+      parentRoute: typeof ConsumerRoute
+    }
+    '/consumer/services': {
+      id: '/consumer/services'
+      path: '/services'
+      fullPath: '/consumer/services'
+      preLoaderRoute: typeof ConsumerServicesRouteImport
+      parentRoute: typeof ConsumerRoute
+    }
+    '/consumer/profile': {
+      id: '/consumer/profile'
+      path: '/profile'
+      fullPath: '/consumer/profile'
+      preLoaderRoute: typeof ConsumerProfileRouteImport
+      parentRoute: typeof ConsumerRoute
+    }
+    '/consumer/history': {
+      id: '/consumer/history'
+      path: '/history'
+      fullPath: '/consumer/history'
+      preLoaderRoute: typeof ConsumerHistoryRouteImport
+      parentRoute: typeof ConsumerRoute
+    }
+    '/consumer/worker/$id': {
+      id: '/consumer/worker/$id'
+      path: '/worker/$id'
+      fullPath: '/consumer/worker/$id'
+      preLoaderRoute: typeof ConsumerWorkerIdRouteImport
+      parentRoute: typeof ConsumerRoute
+    }
+    '/consumer/payment/$id': {
+      id: '/consumer/payment/$id'
+      path: '/payment/$id'
+      fullPath: '/consumer/payment/$id'
+      preLoaderRoute: typeof ConsumerPaymentIdRouteImport
+      parentRoute: typeof ConsumerRoute
+    }
+    '/consumer/order/$id': {
+      id: '/consumer/order/$id'
+      path: '/order/$id'
+      fullPath: '/consumer/order/$id'
+      preLoaderRoute: typeof ConsumerOrderIdRouteImport
+      parentRoute: typeof ConsumerRoute
+    }
   }
 }
 
+interface ConsumerRouteChildren {
+  ConsumerHistoryRoute: typeof ConsumerHistoryRoute
+  ConsumerProfileRoute: typeof ConsumerProfileRoute
+  ConsumerServicesRoute: typeof ConsumerServicesRoute
+  ConsumerIndexRoute: typeof ConsumerIndexRoute
+  ConsumerOrderIdRoute: typeof ConsumerOrderIdRoute
+  ConsumerPaymentIdRoute: typeof ConsumerPaymentIdRoute
+  ConsumerWorkerIdRoute: typeof ConsumerWorkerIdRoute
+}
+
+const ConsumerRouteChildren: ConsumerRouteChildren = {
+  ConsumerHistoryRoute: ConsumerHistoryRoute,
+  ConsumerProfileRoute: ConsumerProfileRoute,
+  ConsumerServicesRoute: ConsumerServicesRoute,
+  ConsumerIndexRoute: ConsumerIndexRoute,
+  ConsumerOrderIdRoute: ConsumerOrderIdRoute,
+  ConsumerPaymentIdRoute: ConsumerPaymentIdRoute,
+  ConsumerWorkerIdRoute: ConsumerWorkerIdRoute,
+}
+
+const ConsumerRouteWithChildren = ConsumerRoute._addFileChildren(
+  ConsumerRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConsumerRoute: ConsumerRouteWithChildren,
   LoginRoute: LoginRoute,
   OtpRoute: OtpRoute,
 }
