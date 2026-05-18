@@ -2,9 +2,14 @@ export const ORDER_STATUS_LABEL: Record<string, string> = {
   pending_match: "Mencari pekerja",
   offered: "Menunggu respons",
   accepted: "Diterima pekerja",
+  worker_departed: "Pekerja berangkat",
   in_progress: "Sedang dikerjakan",
   completed: "Selesai",
   cancelled: "Dibatalkan",
+  cancelled_by_consumer: "Dibatalkan konsumen",
+  cancelled_by_worker: "Dibatalkan pekerja",
+  expired: "Kadaluarsa",
+  dispute: "Dispute",
 };
 
 /** Timeline steps shown on order detail (MVP backend statuses). */
@@ -12,6 +17,7 @@ export const ORDER_STATUS_FLOW = [
   "pending_match",
   "offered",
   "accepted",
+  "worker_departed",
   "in_progress",
   "completed",
 ] as const;

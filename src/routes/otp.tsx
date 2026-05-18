@@ -170,6 +170,7 @@ function OtpPage() {
           kode OTP yang dikirim.
         </div>
       </main>
+      
     </div>
   );
 }

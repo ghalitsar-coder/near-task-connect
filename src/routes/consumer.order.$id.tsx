@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { lazy, Suspense, useMemo } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Phone, MessageCircle, MapPin, AlertTriangle, ArrowLeft, AlertCircle, Loader2 } from "lucide-react";
 import { TopNav } from "@/components/shell/TopNav";
@@ -18,6 +18,9 @@ import { formatIDR, formatRelative } from "@/lib/formatCurrency";
 import { useSessionStore } from "@/stores/useSessionStore";
 
 const NearbyMap = lazy(() => import("@/components/map/NearbyMap").then((m) => ({ default: m.NearbyMap })));
+const MapcnNearbyMap = lazy(() =>
+  import("@/components/map/MapcnNearbyMap").then((m) => ({ default: m.MapcnNearbyMap }))
+);
 
 export const Route = createFileRoute("/consumer/order/$id")({
   head: () => ({ meta: [{ title: "Status Order · KerjaDekat" }] }),
@@ -29,6 +32,8 @@ function OrderPage() {
   const accessToken = useSessionStore((s) => s.accessToken);
   const authed = useSessionStore((s) => s.authed);
   const queryClient = useQueryClient();
+  const [mapMode, setMapMode] = useState<"leaflet" | "mapcn">("leaflet");
+  const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["consumer-order", id, accessToken],
@@ -57,8 +62,12 @@ function OrderPage() {
   const mapCenter: [number, number] = order
     ? (orderMapCenter(order, [DEFAULT_LAT, DEFAULT_LNG]) ?? [DEFAULT_LAT, DEFAULT_LNG])
     : [DEFAULT_LAT, DEFAULT_LNG];
-  const matching =
-    order?.Status === "pending_match" || order?.Status === "offered";
+  const mapTracking =
+    order != null &&
+    (order.WorkerID != null ||
+      (order.Status !== "completed" &&
+        order.Status !== "expired" &&
+        !order.Status.startsWith("cancelled")));
 
   const nearbyQuery = useQuery({
     queryKey: ["workers-nearby-order", id, order?.SkillID, mapCenter[0], mapCenter[1], accessToken],
@@ -72,9 +81,9 @@ function OrderPage() {
           radius: 5000,
         },
       }),
-    enabled: authed && Boolean(accessToken) && matching && Boolean(order),
+    enabled: authed && Boolean(accessToken) && mapTracking,
     staleTime: 15_000,
-    refetchInterval: matching ? 15_000 : false,
+    refetchInterval: mapTracking ? 15_000 : false,
   });
 
   const mapWorkers = useMemo(
@@ -82,9 +91,18 @@ function OrderPage() {
     [nearbyQuery.data],
   );
 
+  useEffect(() => {
+    if (order?.WorkerID) {
+      setSelectedWorkerId(order.WorkerID);
+    }
+  }, [order?.WorkerID]);
+
   const skillName = order?.Skill?.Name ?? "Jasa";
   const workerName = order?.Worker?.FullName;
   const cancellable = order ? canCancelOrder(order.Status) : false;
+  const isCompleted = order?.Status === "completed";
+  const isInProgress = order?.Status === "in_progress" || order?.Status === "worker_departed";
+  const isAccepted = order?.Status === "accepted";
 
   if (isLoading) {
     return (
@@ -127,8 +145,52 @@ function OrderPage() {
         </div>
 
         <section className="px-5 pt-4 md:hidden">
+          <div className="flex items-center justify-center">
+            <div className="inline-flex rounded-full border border-ink/10 bg-[#ffffff] p-1 text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setMapMode("leaflet")}
+                className={`px-3 py-1 rounded-full transition-colors ${
+                  mapMode === "leaflet"
+                    ? "bg-ink text-[#ffffff]"
+                    : "text-ink hover:bg-ink/5"
+                }`}
+              >
+                OpenStreet
+              </button>
+              <button
+                type="button"
+                onClick={() => setMapMode("mapcn")}
+                className={`px-3 py-1 rounded-full transition-colors ${
+                  mapMode === "mapcn"
+                    ? "bg-ink text-[#ffffff]"
+                    : "text-ink hover:bg-ink/5"
+                }`}
+              >
+                MapCN
+              </button>
+            </div>
+          </div>
           <Suspense fallback={<div className="h-[220px] rounded-[24px] bg-[#ffffff] animate-pulse" />}>
-            <NearbyMap center={mapCenter} workers={mapWorkers} radiusKm={5} height="220px" showUser />
+            {mapMode === "mapcn" ? (
+              <MapcnNearbyMap
+                center={mapCenter}
+                workers={mapWorkers}
+                height="220px"
+                selectedWorkerId={selectedWorkerId}
+                onSelectWorker={setSelectedWorkerId}
+              />
+            ) : (
+              <NearbyMap
+                center={mapCenter}
+                workers={mapWorkers}
+                radiusKm={5}
+                height="220px"
+                showUser
+                selectedWorkerId={selectedWorkerId}
+                onSelectWorker={setSelectedWorkerId}
+              />
+            )}
           </Suspense>
         </section>
 
@@ -137,7 +199,7 @@ function OrderPage() {
             <div className="flex items-center justify-between flex-wrap gap-2">
               <span className="badge-positive">
                 <span className="size-1.5 rounded-full bg-positive animate-pulse" />
-                {orderStatusLabel(order.Status)} a
+                {orderStatusLabel(order.Status)}
               </span>
               <span className="text-xs text-mute">dibuat {formatRelative(order.CreatedAt)}</span>
             </div>
@@ -192,7 +254,33 @@ function OrderPage() {
 
           <div className="rounded-[24px] bg-[#ffffff] p-6">
             <h2 className="font-display font-black text-lg mb-4">Riwayat status</h2>
-            <ApiOrderStatusTimeline status={order.Status} />
+            <ApiOrderStatusTimeline status={order.Status} logs={order.Logs} />
+          </div>
+
+          <div className="rounded-[24px] bg-[#ffffff] p-6">
+            <h2 className="font-display font-black text-lg mb-2">Langkah selanjutnya</h2>
+            <p className="text-sm text-body">
+              {isCompleted
+                ? "Pesanan selesai. Silakan konfirmasi pembayaran dan beri ulasan untuk membantu pekerja setempat."
+                : isInProgress
+                  ? "Pekerja sedang mengerjakan pesanan. Anda akan diminta konfirmasi pembayaran setelah selesai."
+                  : isAccepted
+                    ? "Pekerja sudah menerima pesanan. Pantau status perjalanan hingga tiba."
+                    : "Kami sedang mencarikan pekerja terbaik di sekitar Anda."}
+            </p>
+            {isCompleted && (
+              <div className="mt-4 space-y-2">
+                <WiseButton full disabled>
+                  Konfirmasi pembayaran (segera hadir)
+                </WiseButton>
+                <WiseButton full variant="tertiary" disabled>
+                  Beri ulasan (segera hadir)
+                </WiseButton>
+                <Link to="/consumer/history" className="btn-tertiary w-full text-center">
+                  Lihat riwayat pesanan
+                </Link>
+              </div>
+            )}
           </div>
 
           <div className="rounded-[24px] bg-[#ffffff] p-6 text-sm">
@@ -234,8 +322,46 @@ function OrderPage() {
       </div>
 
       <div className="hidden md:block flex-1 relative bg-[#e8ebe6]">
+        <div className="absolute top-6 right-6 z-[420] inline-flex rounded-full border border-ink/10 bg-[#ffffff] p-1 text-xs font-semibold shadow-sm">
+          <button
+            type="button"
+            onClick={() => setMapMode("leaflet")}
+            className={`px-3 py-1 rounded-full transition-colors ${
+              mapMode === "leaflet" ? "bg-ink text-[#ffffff]" : "text-ink hover:bg-ink/5"
+            }`}
+          >
+            OpenStreet
+          </button>
+          <button
+            type="button"
+            onClick={() => setMapMode("mapcn")}
+            className={`px-3 py-1 rounded-full transition-colors ${
+              mapMode === "mapcn" ? "bg-ink text-[#ffffff]" : "text-ink hover:bg-ink/5"
+            }`}
+          >
+            MapCN
+          </button>
+        </div>
         <Suspense fallback={<div className="h-full w-full animate-pulse bg-[#e8ebe6]" />}>
-          <NearbyMap center={mapCenter} workers={mapWorkers} height="100%" radiusKm={5} showUser />
+          {mapMode === "mapcn" ? (
+            <MapcnNearbyMap
+              center={mapCenter}
+              workers={mapWorkers}
+              height="100%"
+              selectedWorkerId={selectedWorkerId}
+              onSelectWorker={setSelectedWorkerId}
+            />
+          ) : (
+            <NearbyMap
+              center={mapCenter}
+              workers={mapWorkers}
+              height="100%"
+              radiusKm={5}
+              showUser
+              selectedWorkerId={selectedWorkerId}
+              onSelectWorker={setSelectedWorkerId}
+            />
+          )}
         </Suspense>
         <div className="absolute top-6 left-6 z-[400] bg-[#ffffff]/90 backdrop-blur-md px-4 py-3 rounded-[24px] border border-ink/10 shadow-sm">
           <div className="text-xs text-mute font-semibold uppercase tracking-wider">Status</div>

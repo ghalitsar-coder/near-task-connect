@@ -151,6 +151,12 @@
     font-family: var(--font-display);
     letter-spacing: -0.01em;
   }
+  .maplibregl-popup-content {
+    @apply bg-transparent! shadow-none! p-0! rounded-none!;
+  }
+  .maplibregl-popup-tip {
+    @apply hidden!;
+  }
 }
 
 @layer components {

@@ -12,6 +12,9 @@ import { useSessionStore } from "@/stores/useSessionStore";
 const NearbyMap = lazy(() =>
   import("@/components/map/NearbyMap").then((m) => ({ default: m.NearbyMap }))
 );
+const MapcnNearbyMap = lazy(() =>
+  import("@/components/map/MapcnNearbyMap").then((m) => ({ default: m.MapcnNearbyMap }))
+);
 
 export const Route = createFileRoute("/consumer/")({
   head: () => ({ meta: [{ title: "Beranda · KerjaDekat" }] }),
@@ -25,6 +28,8 @@ function ConsumerHome() {
   const [activeSkillId, setActiveSkillId] = useState<number | null>(null);
   const [query, setQuery] = useState("");
   const [center, setCenter] = useState<[number, number]>([DEFAULT_LAT, DEFAULT_LNG]);
+  const [mapMode, setMapMode] = useState<"leaflet" | "mapcn">("leaflet");
+  const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
 
   useEffect(() => {
     readUserPosition().then(({ lat, lng }) => setCenter([lat, lng]));
@@ -138,8 +143,51 @@ function ConsumerHome() {
         </section>
 
         <section className="px-5 pt-2 md:hidden">
+          <div className="flex items-center justify-center">
+            <div className="inline-flex rounded-full border border-ink/10 bg-[#ffffff] p-1 text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setMapMode("leaflet")}
+                className={`px-3 py-1 rounded-full transition-colors ${
+                  mapMode === "leaflet"
+                    ? "bg-ink text-[#ffffff]"
+                    : "text-ink hover:bg-ink/5"
+                }`}
+              >
+                OpenStreet
+              </button>
+              <button
+                type="button"
+                onClick={() => setMapMode("mapcn")}
+                className={`px-3 py-1 rounded-full transition-colors ${
+                  mapMode === "mapcn"
+                    ? "bg-ink text-[#ffffff]"
+                    : "text-ink hover:bg-ink/5"
+                }`}
+              >
+                MapCN
+              </button>
+            </div>
+          </div>
           <Suspense fallback={<div className="rounded-[24px] bg-[#ffffff] border border-ink/10 h-[260px] animate-pulse" />}>
-            <NearbyMap center={center} workers={mapWorkers} height="260px" radiusKm={5} />
+            {mapMode === "mapcn" ? (
+              <MapcnNearbyMap
+                center={center}
+                workers={mapWorkers}
+                height="260px"
+                selectedWorkerId={selectedWorkerId}
+                onSelectWorker={setSelectedWorkerId}
+              />
+            ) : (
+              <NearbyMap
+                center={center}
+                workers={mapWorkers}
+                height="260px"
+                radiusKm={5}
+                selectedWorkerId={selectedWorkerId}
+                onSelectWorker={setSelectedWorkerId}
+              />
+            )}
           </Suspense>
           <p className="text-xs text-mute mt-2 text-center">
             {nearbyQuery.isLoading
@@ -212,8 +260,45 @@ function ConsumerHome() {
       </div>
 
       <div className="hidden md:block flex-1 relative bg-[#e8ebe6]">
+        <div className="absolute top-6 right-6 z-[420] inline-flex rounded-full border border-ink/10 bg-[#ffffff] p-1 text-xs font-semibold shadow-sm">
+          <button
+            type="button"
+            onClick={() => setMapMode("leaflet")}
+            className={`px-3 py-1 rounded-full transition-colors ${
+              mapMode === "leaflet" ? "bg-ink text-[#ffffff]" : "text-ink hover:bg-ink/5"
+            }`}
+          >
+            OpenStreet
+          </button>
+          <button
+            type="button"
+            onClick={() => setMapMode("mapcn")}
+            className={`px-3 py-1 rounded-full transition-colors ${
+              mapMode === "mapcn" ? "bg-ink text-[#ffffff]" : "text-ink hover:bg-ink/5"
+            }`}
+          >
+            MapCN
+          </button>
+        </div>
         <Suspense fallback={<div className="h-full w-full animate-pulse bg-[#e8ebe6]" />}>
-          <NearbyMap center={center} workers={mapWorkers} height="100%" radiusKm={5} />
+          {mapMode === "mapcn" ? (
+            <MapcnNearbyMap
+              center={center}
+              workers={mapWorkers}
+              height="100%"
+              selectedWorkerId={selectedWorkerId}
+              onSelectWorker={setSelectedWorkerId}
+            />
+          ) : (
+            <NearbyMap
+              center={center}
+              workers={mapWorkers}
+              height="100%"
+              radiusKm={5}
+              selectedWorkerId={selectedWorkerId}
+              onSelectWorker={setSelectedWorkerId}
+            />
+          )}
         </Suspense>
         <div className="absolute top-6 left-6 z-[400] bg-[#ffffff]/90 backdrop-blur-md px-4 py-3 rounded-[24px] border border-ink/10 shadow-sm flex items-center gap-3">
           <div className="size-8 rounded-full bg-[#e2f6d5] text-[#163300] flex items-center justify-center">

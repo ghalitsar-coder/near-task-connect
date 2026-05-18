@@ -35,6 +35,9 @@ export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
   },
+  optimizeDeps: {
+    include: ['maplibre-gl'] // Tambahkan baris ini
+  },
   vite: {
     server: {
       // proxy: {
