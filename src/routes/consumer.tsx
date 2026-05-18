@@ -1,6 +1,6 @@
-import { createFileRoute, Outlet, Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { createFileRoute, Outlet, Link, useLocation } from "@tanstack/react-router";
 import { BottomTabBar } from "@/components/shell/BottomTabBar";
+import { RequireAuth } from "@/lib/auth/requireAuth";
 import { Search, History, User } from "lucide-react";
 import { useSessionStore } from "@/stores/useSessionStore";
 
@@ -10,15 +10,7 @@ export const Route = createFileRoute("/consumer")({
 
 function ConsumerLayout() {
   const loc = useLocation();
-  const navigate = useNavigate();
   const name = useSessionStore((s) => s.name);
-  const authed = useSessionStore((s) => s.authed);
-
-  useEffect(() => {
-    if (!authed) {
-      navigate({ to: "/login" });
-    }
-  }, [authed, navigate]);
 
   const nav = [
     { to: "/consumer", label: "Eksplor", icon: Search },
@@ -27,6 +19,7 @@ function ConsumerLayout() {
   ];
 
   return (
+    <RequireAuth>
     <div className="min-h-screen bg-canvas-soft flex flex-col">
       {/* Desktop Header */}
       <header className="hidden md:flex items-center justify-between px-6 lg:px-8 py-4 bg-canvas border-b border-ink/10 sticky top-0 z-40">
@@ -72,5 +65,6 @@ function ConsumerLayout() {
         <BottomTabBar />
       </div>
     </div>
+    </RequireAuth>
   );
 }

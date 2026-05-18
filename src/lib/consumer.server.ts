@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { serviceBase } from "@/lib/api/config";
-import type { ApiOrder, ApiResult, SkillCategory } from "@/lib/api/types";
+import type { ApiOrder, ApiResult, NearbyWorker, SkillCategory } from "@/lib/api/types";
 
 const apiBase = serviceBase();
 
@@ -65,6 +65,38 @@ export type CreateOrderInput = {
 };
 
 type AuthInput = { accessToken?: string };
+
+export const getNearbyWorkersFn = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .handler(
+    async ({
+      context,
+      data,
+    }: {
+      context: { accessToken?: string };
+      data?: AuthInput & { lat?: number; lng?: number; skill?: number; radius?: number };
+    }) => {
+      const input = data;
+      const accessToken = input?.accessToken ?? context?.accessToken ?? "";
+      const lat = input?.lat;
+      const lng = input?.lng;
+      if (lat == null || lng == null) {
+        return { ok: false, data: { items: [] as NearbyWorker[] }, error: "Missing coordinates" };
+      }
+      const params = new URLSearchParams({
+        lat: String(lat),
+        lng: String(lng),
+      });
+      if (input?.skill != null) params.set("skill", String(input.skill));
+      if (input?.radius != null) params.set("radius", String(input.radius));
+      const res = await authFetch<{ items: NearbyWorker[] }>(
+        `/workers/nearby?${params}`,
+        accessToken,
+      );
+      if (!res.ok) return { ok: false, data: { items: [] }, error: res.error };
+      return { ok: true, data: { items: res.data?.items ?? [] } };
+    },
+  );
 
 export const getConsumerSkillCategoriesFn = createServerFn({ method: "GET" })
   .middleware([authMiddleware])

@@ -20,10 +20,12 @@ import { Route as AgentIndexRouteImport } from './routes/agent.index'
 import { Route as ConsumerServicesRouteImport } from './routes/consumer.services'
 import { Route as ConsumerProfileRouteImport } from './routes/consumer.profile'
 import { Route as ConsumerHistoryRouteImport } from './routes/consumer.history'
+import { Route as AuthCompleteRouteImport } from './routes/auth.complete'
 import { Route as AgentRegisterRouteImport } from './routes/agent.register'
 import { Route as ConsumerWorkerIdRouteImport } from './routes/consumer.worker.$id'
 import { Route as ConsumerPaymentIdRouteImport } from './routes/consumer.payment.$id'
 import { Route as ConsumerOrderIdRouteImport } from './routes/consumer.order.$id'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const WorkerRoute = WorkerRouteImport.update({
   id: '/worker',
@@ -80,6 +82,11 @@ const ConsumerHistoryRoute = ConsumerHistoryRouteImport.update({
   path: '/history',
   getParentRoute: () => ConsumerRoute,
 } as any)
+const AuthCompleteRoute = AuthCompleteRouteImport.update({
+  id: '/auth/complete',
+  path: '/auth/complete',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AgentRegisterRoute = AgentRegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -100,6 +107,11 @@ const ConsumerOrderIdRoute = ConsumerOrderIdRouteImport.update({
   path: '/order/$id',
   getParentRoute: () => ConsumerRoute,
 } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -109,11 +121,13 @@ export interface FileRoutesByFullPath {
   '/otp': typeof OtpRoute
   '/worker': typeof WorkerRoute
   '/agent/register': typeof AgentRegisterRoute
+  '/auth/complete': typeof AuthCompleteRoute
   '/consumer/history': typeof ConsumerHistoryRoute
   '/consumer/profile': typeof ConsumerProfileRoute
   '/consumer/services': typeof ConsumerServicesRoute
   '/agent/': typeof AgentIndexRoute
   '/consumer/': typeof ConsumerIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/consumer/order/$id': typeof ConsumerOrderIdRoute
   '/consumer/payment/$id': typeof ConsumerPaymentIdRoute
   '/consumer/worker/$id': typeof ConsumerWorkerIdRoute
@@ -124,11 +138,13 @@ export interface FileRoutesByTo {
   '/otp': typeof OtpRoute
   '/worker': typeof WorkerRoute
   '/agent/register': typeof AgentRegisterRoute
+  '/auth/complete': typeof AuthCompleteRoute
   '/consumer/history': typeof ConsumerHistoryRoute
   '/consumer/profile': typeof ConsumerProfileRoute
   '/consumer/services': typeof ConsumerServicesRoute
   '/agent': typeof AgentIndexRoute
   '/consumer': typeof ConsumerIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/consumer/order/$id': typeof ConsumerOrderIdRoute
   '/consumer/payment/$id': typeof ConsumerPaymentIdRoute
   '/consumer/worker/$id': typeof ConsumerWorkerIdRoute
@@ -142,11 +158,13 @@ export interface FileRoutesById {
   '/otp': typeof OtpRoute
   '/worker': typeof WorkerRoute
   '/agent/register': typeof AgentRegisterRoute
+  '/auth/complete': typeof AuthCompleteRoute
   '/consumer/history': typeof ConsumerHistoryRoute
   '/consumer/profile': typeof ConsumerProfileRoute
   '/consumer/services': typeof ConsumerServicesRoute
   '/agent/': typeof AgentIndexRoute
   '/consumer/': typeof ConsumerIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/consumer/order/$id': typeof ConsumerOrderIdRoute
   '/consumer/payment/$id': typeof ConsumerPaymentIdRoute
   '/consumer/worker/$id': typeof ConsumerWorkerIdRoute
@@ -161,11 +179,13 @@ export interface FileRouteTypes {
     | '/otp'
     | '/worker'
     | '/agent/register'
+    | '/auth/complete'
     | '/consumer/history'
     | '/consumer/profile'
     | '/consumer/services'
     | '/agent/'
     | '/consumer/'
+    | '/api/auth/$'
     | '/consumer/order/$id'
     | '/consumer/payment/$id'
     | '/consumer/worker/$id'
@@ -176,11 +196,13 @@ export interface FileRouteTypes {
     | '/otp'
     | '/worker'
     | '/agent/register'
+    | '/auth/complete'
     | '/consumer/history'
     | '/consumer/profile'
     | '/consumer/services'
     | '/agent'
     | '/consumer'
+    | '/api/auth/$'
     | '/consumer/order/$id'
     | '/consumer/payment/$id'
     | '/consumer/worker/$id'
@@ -193,11 +215,13 @@ export interface FileRouteTypes {
     | '/otp'
     | '/worker'
     | '/agent/register'
+    | '/auth/complete'
     | '/consumer/history'
     | '/consumer/profile'
     | '/consumer/services'
     | '/agent/'
     | '/consumer/'
+    | '/api/auth/$'
     | '/consumer/order/$id'
     | '/consumer/payment/$id'
     | '/consumer/worker/$id'
@@ -210,6 +234,8 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   OtpRoute: typeof OtpRoute
   WorkerRoute: typeof WorkerRoute
+  AuthCompleteRoute: typeof AuthCompleteRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -291,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsumerHistoryRouteImport
       parentRoute: typeof ConsumerRoute
     }
+    '/auth/complete': {
+      id: '/auth/complete'
+      path: '/auth/complete'
+      fullPath: '/auth/complete'
+      preLoaderRoute: typeof AuthCompleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agent/register': {
       id: '/agent/register'
       path: '/register'
@@ -318,6 +351,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/consumer/order/$id'
       preLoaderRoute: typeof ConsumerOrderIdRouteImport
       parentRoute: typeof ConsumerRoute
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -365,6 +405,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   OtpRoute: OtpRoute,
   WorkerRoute: WorkerRoute,
+  AuthCompleteRoute: AuthCompleteRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

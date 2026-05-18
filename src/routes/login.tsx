@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { TopNav } from "@/components/shell/TopNav";
 import { WiseButton } from "@/components/brand/WiseButton";
 import { requestOtpFn } from "@/lib/auth.server";
+import { useSessionHydrated } from "@/lib/auth/hydration";
 import { useSessionStore } from "@/stores/useSessionStore";
 
 export const Route = createFileRoute("/login")({
@@ -14,10 +15,18 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { phone, setPhone, role } = useSessionStore();
+  const hydrated = useSessionHydrated();
+  const { phone, setPhone, role, authed, accessToken } = useSessionStore();
   const [touched, setTouched] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const valid = /^8\d{8,11}$/.test(phone);
+
+  useEffect(() => {
+    if (!hydrated || !authed || !accessToken) return;
+    if (role === "agent" || role === "admin") navigate({ to: "/agent" });
+    else if (role === "worker") navigate({ to: "/worker" });
+    else navigate({ to: "/consumer" });
+  }, [hydrated, authed, accessToken, role, navigate]);
 
   const otpMutation = useMutation({
     mutationFn: () => requestOtpFn({ data: { phone_number: phone } }),
@@ -89,6 +98,32 @@ function LoginPage() {
               "Kirim OTP"
             )}
           </WiseButton>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-ink/10" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-[#e8ebe6] px-3 text-mute font-semibold uppercase tracking-wider">
+                atau
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <a
+              href={`/api/auth/signin/google?callbackUrl=${encodeURIComponent("/auth/complete")}`}
+              className="btn-tertiary text-center text-sm !py-3"
+            >
+              Google
+            </a>
+            <a
+              href={`/api/auth/signin/github?callbackUrl=${encodeURIComponent("/auth/complete")}`}
+              className="btn-tertiary text-center text-sm !py-3"
+            >
+              GitHub
+            </a>
+          </div>
 
           <p className="text-xs text-mute text-center">
             Dengan lanjut, kamu setuju dengan{" "}

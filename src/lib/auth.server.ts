@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getSession } from "start-authjs";
 import { authMiddleware } from "@/lib/auth/middleware";
+import { authConfig } from "@/lib/auth/config";
 import { serviceBase } from "@/lib/api/config";
 import type { ApiResult, ApiUser, TokenPair } from "@/lib/api/types";
 
@@ -73,6 +75,31 @@ export const verifyOtpFn = createServerFn({ method: "POST" }).handler(async ({ d
     phone_number: input?.phone_number ?? "",
     code: input?.code ?? "",
     role: input?.role ?? "consumer",
+  });
+});
+
+export const refreshTokensFn = createServerFn({ method: "POST" }).handler(async ({ data }) => {
+  const refresh_token = (data as { refresh_token?: string } | undefined)?.refresh_token ?? "";
+  return postJson<TokenPair>("/auth/refresh", { refresh_token });
+});
+
+export const completeOAuthFn = createServerFn({ method: "POST" }).handler(async ({ request, data }) => {
+  const session = await getSession(request, authConfig);
+  const user = session?.user;
+  if (!user?.email) {
+    return { ok: false, data: null as TokenPair, error: "OAuth session tidak ditemukan" };
+  }
+  const role = (data as { role?: string } | undefined)?.role ?? "consumer";
+  const provider =
+    (session as { provider?: string }).provider ?? "google";
+  const subject =
+    (session as { subject?: string }).subject ?? user.id ?? user.email ?? "";
+  return postJson<TokenPair>("/auth/social", {
+    provider,
+    subject,
+    email: user.email,
+    name: user.name ?? "Pengguna",
+    role,
   });
 });
 

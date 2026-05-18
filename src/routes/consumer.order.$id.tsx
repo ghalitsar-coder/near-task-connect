@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Phone, MessageCircle, MapPin, AlertTriangle, ArrowLeft, AlertCircle, Loader2 } from "lucide-react";
 import { TopNav } from "@/components/shell/TopNav";
@@ -7,7 +7,9 @@ import { WiseButton } from "@/components/brand/WiseButton";
 import {
   cancelConsumerOrderFn,
   getConsumerOrderFn,
+  getNearbyWorkersFn,
 } from "@/lib/consumer.server";
+import { nearbyToMapWorker } from "@/lib/workerMapUtils";
 import { ApiOrderStatusTimeline } from "@/components/consumer/ApiOrderStatusTimeline";
 import { orderStatusLabel, paymentStatusLabel, skillEmoji } from "@/lib/orderLabels";
 import { canCancelOrder, orderMapCenter } from "@/lib/orderUtils";
@@ -55,6 +57,31 @@ function OrderPage() {
   const mapCenter: [number, number] = order
     ? (orderMapCenter(order, [DEFAULT_LAT, DEFAULT_LNG]) ?? [DEFAULT_LAT, DEFAULT_LNG])
     : [DEFAULT_LAT, DEFAULT_LNG];
+  const matching =
+    order?.Status === "pending_match" || order?.Status === "offered";
+
+  const nearbyQuery = useQuery({
+    queryKey: ["workers-nearby-order", id, order?.SkillID, mapCenter[0], mapCenter[1], accessToken],
+    queryFn: () =>
+      getNearbyWorkersFn({
+        data: {
+          accessToken,
+          lat: mapCenter[0],
+          lng: mapCenter[1],
+          skill: order?.SkillID,
+          radius: 5000,
+        },
+      }),
+    enabled: authed && Boolean(accessToken) && matching && Boolean(order),
+    staleTime: 15_000,
+    refetchInterval: matching ? 15_000 : false,
+  });
+
+  const mapWorkers = useMemo(
+    () => (nearbyQuery.data?.data.items ?? []).map(nearbyToMapWorker),
+    [nearbyQuery.data],
+  );
+
   const skillName = order?.Skill?.Name ?? "Jasa";
   const workerName = order?.Worker?.FullName;
   const cancellable = order ? canCancelOrder(order.Status) : false;
@@ -101,7 +128,7 @@ function OrderPage() {
 
         <section className="px-5 pt-4 md:hidden">
           <Suspense fallback={<div className="h-[220px] rounded-[24px] bg-[#ffffff] animate-pulse" />}>
-            <NearbyMap center={mapCenter} workers={[]} radiusKm={1} height="220px" showUser />
+            <NearbyMap center={mapCenter} workers={mapWorkers} radiusKm={5} height="220px" showUser />
           </Suspense>
         </section>
 
@@ -208,7 +235,7 @@ function OrderPage() {
 
       <div className="hidden md:block flex-1 relative bg-[#e8ebe6]">
         <Suspense fallback={<div className="h-full w-full animate-pulse bg-[#e8ebe6]" />}>
-          <NearbyMap center={mapCenter} workers={[]} height="100%" radiusKm={1} showUser />
+          <NearbyMap center={mapCenter} workers={mapWorkers} height="100%" radiusKm={5} showUser />
         </Suspense>
         <div className="absolute top-6 left-6 z-[400] bg-[#ffffff]/90 backdrop-blur-md px-4 py-3 rounded-[24px] border border-ink/10 shadow-sm">
           <div className="text-xs text-mute font-semibold uppercase tracking-wider">Status</div>

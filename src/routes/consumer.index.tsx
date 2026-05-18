@@ -2,9 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, MapPin, ChevronRight, AlertCircle, Loader2, Users } from "lucide-react";
-import { getConsumerSkillCategoriesFn } from "@/lib/consumer.server";
+import { getConsumerSkillCategoriesFn, getNearbyWorkersFn } from "@/lib/consumer.server";
 import { skillEmoji } from "@/lib/orderLabels";
 import { DEFAULT_LAT, DEFAULT_LNG, readUserPosition } from "@/lib/geo";
+import { nearbyToMapWorker } from "@/lib/workerMapUtils";
 import type { SkillCategory } from "@/lib/api/types";
 import { useSessionStore } from "@/stores/useSessionStore";
 
@@ -36,7 +37,28 @@ function ConsumerHome() {
     staleTime: 300_000,
   });
 
+  const nearbyQuery = useQuery({
+    queryKey: ["workers-nearby", accessToken, center[0], center[1], activeSkillId],
+    queryFn: () =>
+      getNearbyWorkersFn({
+        data: {
+          accessToken,
+          lat: center[0],
+          lng: center[1],
+          skill: activeSkillId ?? undefined,
+          radius: 5000,
+        },
+      }),
+    enabled: authed && Boolean(accessToken),
+    staleTime: 30_000,
+  });
+
   const categories: SkillCategory[] = categoriesQuery.data?.data.items ?? [];
+  const mapWorkers = useMemo(
+    () => (nearbyQuery.data?.data.items ?? []).map(nearbyToMapWorker),
+    [nearbyQuery.data],
+  );
+  const nearbyCount = nearbyQuery.data?.data.items.length ?? 0;
   const filteredCategories = useMemo(() => {
     if (!query.trim()) return categories;
     const q = query.toLowerCase();
@@ -117,9 +139,15 @@ function ConsumerHome() {
 
         <section className="px-5 pt-2 md:hidden">
           <Suspense fallback={<div className="rounded-[24px] bg-[#ffffff] border border-ink/10 h-[260px] animate-pulse" />}>
-            <NearbyMap center={center} workers={[]} height="260px" radiusKm={5} />
+            <NearbyMap center={center} workers={mapWorkers} height="260px" radiusKm={5} />
           </Suspense>
-          <p className="text-xs text-mute mt-2 text-center">Peta radius 5 km — pekerja muncul setelah pemesanan</p>
+          <p className="text-xs text-mute mt-2 text-center">
+            {nearbyQuery.isLoading
+              ? "Memuat pekerja terdekat…"
+              : nearbyCount > 0
+                ? `${nearbyCount} pekerja online dalam radius 5 km`
+                : "Belum ada pekerja online di sekitar — pilih kategori untuk memesan"}
+          </p>
         </section>
 
         <section className="px-5 pt-6 pb-8 md:flex-1 md:bg-[#e8ebe6]/50 md:border-t border-ink/5">
@@ -169,17 +197,23 @@ function ConsumerHome() {
             )}
           </div>
 
-          <div className="mt-6 rounded-[24px] bg-[#e8ebe6] p-4 text-xs text-body">
-            <strong className="text-ink">Catatan MVP:</strong> Daftar pekerja di peta membutuhkan endpoint{" "}
-            <code className="bg-[#ffffff] px-1 rounded">GET /workers/nearby</code> (belum tersedia). Pilih
-            kategori untuk membuat pesanan — sistem akan mencarikan pekerja terdekat.
-          </div>
+          {nearbyQuery.isError && (
+            <div className="mt-6 flex items-start gap-2 rounded-[24px] border border-[#d03238]/30 bg-[#d03238]/10 px-3 py-2 text-xs text-[#054d28]">
+              <AlertCircle size={14} className="shrink-0 mt-0.5" />
+              <span>
+                Gagal memuat pekerja di peta.{" "}
+                <button type="button" onClick={() => nearbyQuery.refetch()} className="underline font-semibold">
+                  Coba lagi
+                </button>
+              </span>
+            </div>
+          )}
         </section>
       </div>
 
       <div className="hidden md:block flex-1 relative bg-[#e8ebe6]">
         <Suspense fallback={<div className="h-full w-full animate-pulse bg-[#e8ebe6]" />}>
-          <NearbyMap center={center} workers={[]} height="100%" radiusKm={5} />
+          <NearbyMap center={center} workers={mapWorkers} height="100%" radiusKm={5} />
         </Suspense>
         <div className="absolute top-6 left-6 z-[400] bg-[#ffffff]/90 backdrop-blur-md px-4 py-3 rounded-[24px] border border-ink/10 shadow-sm flex items-center gap-3">
           <div className="size-8 rounded-full bg-[#e2f6d5] text-[#163300] flex items-center justify-center">
@@ -187,7 +221,13 @@ function ConsumerHome() {
           </div>
           <div>
             <div className="text-xs text-mute font-semibold uppercase tracking-wider">Radius 5 km</div>
-            <div className="font-display font-black text-sm">Pilih kategori untuk memesan</div>
+            <div className="font-display font-black text-sm">
+              {nearbyQuery.isLoading
+                ? "Memuat pekerja…"
+                : nearbyCount > 0
+                  ? `${nearbyCount} pekerja online`
+                  : "Pilih kategori untuk memesan"}
+            </div>
           </div>
         </div>
       </div>

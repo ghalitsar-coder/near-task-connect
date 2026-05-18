@@ -23,6 +23,20 @@ export type SkillCategory = {
   Description?: string | null;
 };
 
+export type NearbyWorker = {
+  user_id: string;
+  full_name: string;
+  latitude: number;
+  longitude: number;
+  distance_m: number;
+  rating_avg: number;
+  rating_count: number;
+  base_rate?: number | null;
+  availability: string;
+  verified_rt: boolean;
+  skills: { id: number; name: string }[];
+};
+
 export type Kelurahan = {
   ID: number;
   Name: string;
