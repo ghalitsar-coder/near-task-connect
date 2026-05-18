@@ -13,6 +13,9 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AgentRouteImport } from './routes/_agent'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AgentDashboardRouteImport } from './routes/_agent.dashboard'
+import { Route as AgentWorkersIndexRouteImport } from './routes/_agent.workers.index'
+import { Route as AgentWorkersNewRouteImport } from './routes/_agent.workers.new'
+import { Route as AgentWorkersWorkerIdRouteImport } from './routes/_agent.workers.$workerId'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -33,16 +36,37 @@ const AgentDashboardRoute = AgentDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AgentRoute,
 } as any)
+const AgentWorkersIndexRoute = AgentWorkersIndexRouteImport.update({
+  id: '/workers/',
+  path: '/workers/',
+  getParentRoute: () => AgentRoute,
+} as any)
+const AgentWorkersNewRoute = AgentWorkersNewRouteImport.update({
+  id: '/workers/new',
+  path: '/workers/new',
+  getParentRoute: () => AgentRoute,
+} as any)
+const AgentWorkersWorkerIdRoute = AgentWorkersWorkerIdRouteImport.update({
+  id: '/workers/$workerId',
+  path: '/workers/$workerId',
+  getParentRoute: () => AgentRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/dashboard': typeof AgentDashboardRoute
+  '/workers/$workerId': typeof AgentWorkersWorkerIdRoute
+  '/workers/new': typeof AgentWorkersNewRoute
+  '/workers/': typeof AgentWorkersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/dashboard': typeof AgentDashboardRoute
+  '/workers/$workerId': typeof AgentWorkersWorkerIdRoute
+  '/workers/new': typeof AgentWorkersNewRoute
+  '/workers': typeof AgentWorkersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -50,13 +74,36 @@ export interface FileRoutesById {
   '/_agent': typeof AgentRouteWithChildren
   '/login': typeof LoginRoute
   '/_agent/dashboard': typeof AgentDashboardRoute
+  '/_agent/workers/$workerId': typeof AgentWorkersWorkerIdRoute
+  '/_agent/workers/new': typeof AgentWorkersNewRoute
+  '/_agent/workers/': typeof AgentWorkersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/dashboard'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/dashboard'
+    | '/workers/$workerId'
+    | '/workers/new'
+    | '/workers/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/dashboard'
-  id: '__root__' | '/' | '/_agent' | '/login' | '/_agent/dashboard'
+  to:
+    | '/'
+    | '/login'
+    | '/dashboard'
+    | '/workers/$workerId'
+    | '/workers/new'
+    | '/workers'
+  id:
+    | '__root__'
+    | '/'
+    | '/_agent'
+    | '/login'
+    | '/_agent/dashboard'
+    | '/_agent/workers/$workerId'
+    | '/_agent/workers/new'
+    | '/_agent/workers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -95,15 +142,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentDashboardRouteImport
       parentRoute: typeof AgentRoute
     }
+    '/_agent/workers/': {
+      id: '/_agent/workers/'
+      path: '/workers'
+      fullPath: '/workers/'
+      preLoaderRoute: typeof AgentWorkersIndexRouteImport
+      parentRoute: typeof AgentRoute
+    }
+    '/_agent/workers/new': {
+      id: '/_agent/workers/new'
+      path: '/workers/new'
+      fullPath: '/workers/new'
+      preLoaderRoute: typeof AgentWorkersNewRouteImport
+      parentRoute: typeof AgentRoute
+    }
+    '/_agent/workers/$workerId': {
+      id: '/_agent/workers/$workerId'
+      path: '/workers/$workerId'
+      fullPath: '/workers/$workerId'
+      preLoaderRoute: typeof AgentWorkersWorkerIdRouteImport
+      parentRoute: typeof AgentRoute
+    }
   }
 }
 
 interface AgentRouteChildren {
   AgentDashboardRoute: typeof AgentDashboardRoute
+  AgentWorkersWorkerIdRoute: typeof AgentWorkersWorkerIdRoute
+  AgentWorkersNewRoute: typeof AgentWorkersNewRoute
+  AgentWorkersIndexRoute: typeof AgentWorkersIndexRoute
 }
 
 const AgentRouteChildren: AgentRouteChildren = {
   AgentDashboardRoute: AgentDashboardRoute,
+  AgentWorkersWorkerIdRoute: AgentWorkersWorkerIdRoute,
+  AgentWorkersNewRoute: AgentWorkersNewRoute,
+  AgentWorkersIndexRoute: AgentWorkersIndexRoute,
 }
 
 const AgentRouteWithChildren = AgentRoute._addFileChildren(AgentRouteChildren)
@@ -116,3 +190,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
