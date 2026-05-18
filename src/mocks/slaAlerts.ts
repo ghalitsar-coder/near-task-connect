@@ -12,7 +12,7 @@ export const mockSlaAlerts: SlaAlert[] = mockWorkers
       workerId: w.id,
       type: "verification_overdue" as const,
       ageHours,
-      severity: ageHours >= 24 ? "critical" : "warning",
+      severity: (ageHours >= 24 ? "critical" : "warning") as "critical" | "warning",
       createdAt: w.registeredAt,
     };
   })
