@@ -1,8 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { TopNav } from "@/components/shell/TopNav";
 import { WiseButton } from "@/components/brand/WiseButton";
-import { useSessionStore } from "@/stores/useSessionStore";
+import { getMeFn, requestOtpFn, verifyOtpFn } from "@/lib/auth.server";
+import { useSessionStore, type Role } from "@/stores/useSessionStore";
 
 export const Route = createFileRoute("/otp")({
   head: () => ({ meta: [{ title: "Verifikasi OTP · KerjaDekat" }] }),
@@ -11,7 +14,7 @@ export const Route = createFileRoute("/otp")({
 
 function OtpPage() {
   const navigate = useNavigate();
-  const { phone, role, authenticate } = useSessionStore();
+  const { phone, role, setTokens, setProfile } = useSessionStore();
   const [digits, setDigits] = useState<string[]>(Array(6).fill(""));
   const [error, setError] = useState<string | null>(null);
   const [seconds, setSeconds] = useState(45);
@@ -21,6 +24,51 @@ function OtpPage() {
     const t = setInterval(() => setSeconds((s) => (s > 0 ? s - 1 : 0)), 1000);
     return () => clearInterval(t);
   }, []);
+
+  const verifyMutation = useMutation({
+    mutationFn: async (code: string) => {
+      const res = await verifyOtpFn({
+        data: { phone_number: phone, code, role },
+      });
+      if (!res.ok || !res.data) {
+        throw new Error(res.error ?? "Verifikasi gagal");
+      }
+      setTokens({
+        accessToken: res.data.access_token,
+        refreshToken: res.data.refresh_token,
+      });
+      const me = await getMeFn({ data: { accessToken: res.data.access_token } });
+      if (me.ok && me.data) {
+        const apiRole = me.data.Role as Role;
+        setProfile({
+          name: me.data.FullName,
+          kelurahanId: me.data.KelurahanID ?? null,
+          role: ["consumer", "worker", "agent", "admin"].includes(apiRole) ? apiRole : role,
+        });
+      }
+      return res.data;
+    },
+    onSuccess: () => {
+      if (role === "agent" || role === "admin") navigate({ to: "/agent" });
+      else if (role === "worker") navigate({ to: "/worker" });
+      else navigate({ to: "/consumer" });
+    },
+    onError: (err) => {
+      setError(err instanceof Error ? err.message : "Verifikasi gagal");
+    },
+  });
+
+  const resendMutation = useMutation({
+    mutationFn: () => requestOtpFn({ data: { phone_number: phone } }),
+    onSuccess: (res) => {
+      if (!res.ok) {
+        setError(res.error ?? "Gagal mengirim ulang OTP");
+        return;
+      }
+      setError(null);
+      setSeconds(45);
+    },
+  });
 
   const code = digits.join("");
   const valid = code.length === 6;
@@ -45,18 +93,12 @@ function OtpPage() {
   };
 
   const verify = () => {
-    if (code !== "123456") {
-      setError("Kode OTP salah. Gunakan 123456 untuk demo.");
-      return;
-    }
-    authenticate();
-    if (role === "agent") navigate({ to: "/agent" });
-    else if (role === "worker") navigate({ to: "/worker" });
-    else navigate({ to: "/consumer" });
+    if (!valid || verifyMutation.isPending) return;
+    verifyMutation.mutate(code);
   };
 
   return (
-    <div className="min-h-screen bg-canvas-soft">
+    <div className="min-h-screen bg-[#e8ebe6]">
       <TopNav backTo="/login" />
       <main className="max-w-md mx-auto px-6 pt-6 pb-20">
         <h1 className="display-xl">Cek WhatsApp</h1>
@@ -77,30 +119,55 @@ function OtpPage() {
               onChange={(e) => onChange(i, e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Backspace" && !digits[i] && i > 0) inputsRef.current[i - 1]?.focus();
+                if (e.key === "Enter" && valid) verify();
               }}
-              className="text-input !p-0 size-14 text-center font-display font-black text-2xl"
+              className="text-input !p-0 size-14 text-center font-display font-black text-2xl bg-[#ffffff]"
             />
           ))}
         </div>
 
-        {error && <p className="text-negative text-sm mt-3">{error}</p>}
+        {error && (
+          <div className="mt-3 flex items-start gap-2 text-sm text-[#d03238]">
+            <AlertCircle size={16} className="shrink-0 mt-0.5" />
+            <span>{error}</span>
+          </div>
+        )}
 
-        <WiseButton onClick={verify} disabled={!valid} full className="mt-8">
-          Verifikasi
+        <WiseButton
+          id="otp-verify-btn"
+          onClick={verify}
+          disabled={!valid || verifyMutation.isPending}
+          full
+          className="mt-8"
+        >
+          {verifyMutation.isPending ? (
+            <span className="inline-flex items-center gap-2">
+              <Loader2 size={16} className="animate-spin" /> Memverifikasi…
+            </span>
+          ) : (
+            "Verifikasi"
+          )}
         </WiseButton>
 
         <div className="text-center text-sm text-mute mt-6">
           {seconds > 0 ? (
             <>Kirim ulang dalam {seconds}d</>
           ) : (
-            <button onClick={() => setSeconds(45)} className="underline font-semibold text-ink">
-              Kirim ulang kode
+            <button
+              id="otp-resend-btn"
+              type="button"
+              onClick={() => resendMutation.mutate()}
+              disabled={resendMutation.isPending}
+              className="underline font-semibold text-ink"
+            >
+              {resendMutation.isPending ? "Mengirim…" : "Kirim ulang kode"}
             </button>
           )}
         </div>
 
         <div className="card-sage mt-8 text-sm">
-          <strong>Demo:</strong> Gunakan kode <code className="bg-canvas px-1.5 rounded">123456</code> untuk lanjut.
+          <strong>Dev:</strong> Cek log backend (<code className="bg-[#ffffff] px-1.5 rounded">sms_mock: OTP</code>) untuk
+          kode OTP yang dikirim.
         </div>
       </main>
     </div>

@@ -1,4 +1,5 @@
-import { createFileRoute, Outlet, Link, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { BottomTabBar } from "@/components/shell/BottomTabBar";
 import { Search, History, User } from "lucide-react";
 import { useSessionStore } from "@/stores/useSessionStore";
@@ -9,7 +10,15 @@ export const Route = createFileRoute("/consumer")({
 
 function ConsumerLayout() {
   const loc = useLocation();
+  const navigate = useNavigate();
   const name = useSessionStore((s) => s.name);
+  const authed = useSessionStore((s) => s.authed);
+
+  useEffect(() => {
+    if (!authed) {
+      navigate({ to: "/login" });
+    }
+  }, [authed, navigate]);
 
   const nav = [
     { to: "/consumer", label: "Eksplor", icon: Search },

@@ -1,9 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search, UserPlus, CheckCircle2, Clock } from "lucide-react";
-import { mockAgentWorkers, AGENT_INFO } from "@/data/mockAgentWorkers";
-import { mockServices } from "@/data/mockServices";
-import { formatRelative } from "@/lib/formatCurrency";
+import { Search, UserPlus, Users } from "lucide-react";
+import { useSessionStore } from "@/stores/useSessionStore";
 
 export const Route = createFileRoute("/agent/")({
   head: () => ({ meta: [{ title: "Dasbor Agen · KerjaDekat" }] }),
@@ -12,121 +10,70 @@ export const Route = createFileRoute("/agent/")({
 
 function AgentHome() {
   const [q, setQ] = useState("");
-  const filtered = mockAgentWorkers.filter((w) =>
-    [w.name, w.nik, w.kelurahan].some((f) => f.toLowerCase().includes(q.toLowerCase()))
-  );
+  const { name, kelurahanId, authed } = useSessionStore();
 
-  const verified = mockAgentWorkers.filter((w) => w.verificationStatus === "verified").length;
-  const pending = mockAgentWorkers.filter((w) => w.verificationStatus === "pending").length;
-  const online = mockAgentWorkers.filter((w) => w.online).length;
+  const territoryLabel = kelurahanId ? `Kelurahan ID ${kelurahanId}` : "Wilayah binaan";
 
   return (
     <main className="p-5 lg:p-10 max-w-6xl">
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <h1 className="display-md">Selamat pagi, {AGENT_INFO.name.split(" ")[1]}.</h1>
-          <p className="text-body mt-1">
-            Wilayah binaan: {AGENT_INFO.kelurahan}, {AGENT_INFO.kecamatan}, {AGENT_INFO.kota}.
-          </p>
+          <h1 className="display-md">
+            Selamat datang{authed && name !== "Tamu" ? `, ${name.split(" ")[0]}` : ""}.
+          </h1>
+          <p className="text-body mt-1">Wilayah binaan: {territoryLabel}.</p>
         </div>
-        <Link to="/agent/register" className="btn-primary">
+        <Link to="/agent/register" className="btn-primary" id="agent-dashboard-register-btn">
           <UserPlus size={16} /> Daftarkan pekerja
         </Link>
       </div>
 
-      {/* stats */}
       <div className="grid sm:grid-cols-3 gap-3 mt-6">
-        <Stat label="Total pekerja" value={mockAgentWorkers.length.toString()} />
-        <Stat label="Online sekarang" value={online.toString()} accent="primary" />
-        <Stat label="Menunggu verifikasi" value={pending.toString()} accent="warning" />
+        <Stat label="Total pekerja" value="—" hint="API daftar pekerja belum tersedia di MVP" />
+        <Stat label="Online sekarang" value="—" />
+        <Stat label="Menunggu verifikasi" value="—" />
       </div>
 
-      <div className="mt-4 card-green flex items-center justify-between">
-        <div>
-          <div className="font-display font-black">{verified} pekerja terverifikasi RT</div>
-          <div className="text-sm text-body">Sumber legitimasi platform di kelurahan kamu.</div>
-        </div>
-        <CheckCircle2 size={36} className="text-positive-deep" />
-      </div>
-
-      {/* search */}
       <div className="mt-8 flex items-center justify-between gap-3 flex-wrap">
         <h2 className="font-display font-black text-xl">Daftar pekerja</h2>
         <div className="relative w-full sm:w-80">
           <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-mute" />
           <input
+            id="agent-dashboard-search-input"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Cari nama / NIK / kelurahan"
-            className="text-input !pl-10 !py-2.5"
+            className="text-input !pl-10 !py-2.5 bg-[#ffffff]"
+            disabled
           />
         </div>
       </div>
 
-      {/* table */}
-      <div className="card-content mt-4 !p-0 overflow-hidden">
-        <div className="hidden md:grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_auto] gap-4 px-5 py-3 text-xs uppercase tracking-wide text-mute border-b border-ink/10 font-semibold">
-          <span>Pekerja</span>
-          <span>NIK</span>
-          <span>Keahlian</span>
-          <span>Kelurahan</span>
-          <span>Status</span>
-          <span>Terdaftar</span>
+      <div className="rounded-[24px] bg-[#ffffff] mt-4 overflow-hidden">
+        <div className="flex flex-col items-center justify-center px-5 py-16 text-sm text-mute">
+          <Users className="mb-3 h-10 w-10 opacity-30" />
+          <p className="font-semibold text-body text-center">
+            Daftar pekerja wilayah akan tampil di sini setelah endpoint{" "}
+            <code className="text-xs bg-[#e8ebe6] px-1 rounded">GET /agent/workers</code> tersedia.
+          </p>
+          <p className="mt-2 text-center max-w-md">
+            Gunakan tombol <strong>Daftarkan pekerja</strong> untuk mendaftarkan mitra baru via API.
+          </p>
+          {q && (
+            <p className="mt-3 text-xs">Pencarian &quot;{q}&quot; — belum terhubung ke backend.</p>
+          )}
         </div>
-        <ul className="divide-y divide-ink/10">
-          {filtered.map((w) => {
-            const svc = mockServices.find((s) => s.slug === w.primarySkill);
-            return (
-              <li
-                key={w.id}
-                className="grid md:grid-cols-[1.5fr_1fr_1fr_1fr_1fr_auto] gap-2 md:gap-4 px-5 py-4 text-sm items-center"
-              >
-                <div>
-                  <div className="font-semibold inline-flex items-center gap-2">
-                    {w.name}
-                    {w.online && <span className="size-2 rounded-full bg-positive" />}
-                  </div>
-                  <div className="md:hidden text-xs text-mute mt-0.5">{w.nik}</div>
-                </div>
-                <div className="hidden md:block text-body">{w.nik}</div>
-                <div className="text-body">
-                  {svc?.icon} {svc?.name}
-                </div>
-                <div className="text-body">{w.kelurahan}</div>
-                <div>
-                  {w.verificationStatus === "verified" ? (
-                    <span className="badge-positive">
-                      <CheckCircle2 size={10} /> Terverifikasi
-                    </span>
-                  ) : w.verificationStatus === "pending" ? (
-                    <span className="badge-warning">
-                      <Clock size={10} className="inline" /> Pending
-                    </span>
-                  ) : (
-                    <span className="badge-negative">Ditolak</span>
-                  )}
-                </div>
-                <div className="text-mute text-xs">{formatRelative(w.registeredAt)}</div>
-              </li>
-            );
-          })}
-        </ul>
       </div>
     </main>
   );
 }
 
-function Stat({ label, value, accent }: { label: string; value: string; accent?: "primary" | "warning" }) {
+function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className={`card-content`}>
+    <div className="rounded-[24px] bg-[#ffffff] p-6">
       <div className="text-xs text-mute">{label}</div>
-      <div
-        className={`font-display font-black text-3xl mt-1 ${
-          accent === "primary" ? "text-ink-deep" : accent === "warning" ? "text-warning-deep" : ""
-        }`}
-      >
-        {value}
-      </div>
+      <div className="font-display font-black text-3xl mt-1">{value}</div>
+      {hint && <p className="text-xs text-mute mt-2">{hint}</p>}
     </div>
   );
 }

@@ -105,7 +105,8 @@ function Landing() {
           </div>
 
           <p className="text-xs text-mute mt-6">
-            Demo — semua data dummy. OTP yang valid: <code className="bg-canvas-soft px-1.5 py-0.5 rounded">123456</code>.
+            OTP dikirim via SMS mock — cek log backend (<code className="bg-canvas-soft px-1.5 py-0.5 rounded">sms_mock: OTP</code>).
+            Untuk agen, gunakan nomor yang sudah terdaftar di seed data.
           </p>
         </div>
       </section>
