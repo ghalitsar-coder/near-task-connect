@@ -18,7 +18,12 @@ const NAV = [
   { to: "/territory", label: "Peta Teritori", icon: Map },
   { to: "/reports", label: "Laporan", icon: BarChart3 },
   { to: "/alerts", label: "SLA Alerts", icon: AlertTriangle, badge: true },
-] as const;
+] as const satisfies ReadonlyArray<{
+  to: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  badge?: boolean;
+}>;
 
 export function AgentSidebar() {
   const path = useRouterState({ select: (s) => s.location.pathname });
