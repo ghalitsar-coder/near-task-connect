@@ -12,7 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AgentRouteImport } from './routes/_agent'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AgentTerritoryRouteImport } from './routes/_agent.territory'
+import { Route as AgentReportsRouteImport } from './routes/_agent.reports'
 import { Route as AgentDashboardRouteImport } from './routes/_agent.dashboard'
+import { Route as AgentAlertsRouteImport } from './routes/_agent.alerts'
 import { Route as AgentWorkersIndexRouteImport } from './routes/_agent.workers.index'
 import { Route as AgentWorkersNewRouteImport } from './routes/_agent.workers.new'
 import { Route as AgentWorkersWorkerIdRouteImport } from './routes/_agent.workers.$workerId'
@@ -31,9 +34,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentTerritoryRoute = AgentTerritoryRouteImport.update({
+  id: '/territory',
+  path: '/territory',
+  getParentRoute: () => AgentRoute,
+} as any)
+const AgentReportsRoute = AgentReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AgentRoute,
+} as any)
 const AgentDashboardRoute = AgentDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AgentRoute,
+} as any)
+const AgentAlertsRoute = AgentAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
   getParentRoute: () => AgentRoute,
 } as any)
 const AgentWorkersIndexRoute = AgentWorkersIndexRouteImport.update({
@@ -55,7 +73,10 @@ const AgentWorkersWorkerIdRoute = AgentWorkersWorkerIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/alerts': typeof AgentAlertsRoute
   '/dashboard': typeof AgentDashboardRoute
+  '/reports': typeof AgentReportsRoute
+  '/territory': typeof AgentTerritoryRoute
   '/workers/$workerId': typeof AgentWorkersWorkerIdRoute
   '/workers/new': typeof AgentWorkersNewRoute
   '/workers/': typeof AgentWorkersIndexRoute
@@ -63,7 +84,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/alerts': typeof AgentAlertsRoute
   '/dashboard': typeof AgentDashboardRoute
+  '/reports': typeof AgentReportsRoute
+  '/territory': typeof AgentTerritoryRoute
   '/workers/$workerId': typeof AgentWorkersWorkerIdRoute
   '/workers/new': typeof AgentWorkersNewRoute
   '/workers': typeof AgentWorkersIndexRoute
@@ -73,7 +97,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_agent': typeof AgentRouteWithChildren
   '/login': typeof LoginRoute
+  '/_agent/alerts': typeof AgentAlertsRoute
   '/_agent/dashboard': typeof AgentDashboardRoute
+  '/_agent/reports': typeof AgentReportsRoute
+  '/_agent/territory': typeof AgentTerritoryRoute
   '/_agent/workers/$workerId': typeof AgentWorkersWorkerIdRoute
   '/_agent/workers/new': typeof AgentWorkersNewRoute
   '/_agent/workers/': typeof AgentWorkersIndexRoute
@@ -83,7 +110,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/alerts'
     | '/dashboard'
+    | '/reports'
+    | '/territory'
     | '/workers/$workerId'
     | '/workers/new'
     | '/workers/'
@@ -91,7 +121,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/alerts'
     | '/dashboard'
+    | '/reports'
+    | '/territory'
     | '/workers/$workerId'
     | '/workers/new'
     | '/workers'
@@ -100,7 +133,10 @@ export interface FileRouteTypes {
     | '/'
     | '/_agent'
     | '/login'
+    | '/_agent/alerts'
     | '/_agent/dashboard'
+    | '/_agent/reports'
+    | '/_agent/territory'
     | '/_agent/workers/$workerId'
     | '/_agent/workers/new'
     | '/_agent/workers/'
@@ -135,11 +171,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_agent/territory': {
+      id: '/_agent/territory'
+      path: '/territory'
+      fullPath: '/territory'
+      preLoaderRoute: typeof AgentTerritoryRouteImport
+      parentRoute: typeof AgentRoute
+    }
+    '/_agent/reports': {
+      id: '/_agent/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AgentReportsRouteImport
+      parentRoute: typeof AgentRoute
+    }
     '/_agent/dashboard': {
       id: '/_agent/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AgentDashboardRouteImport
+      parentRoute: typeof AgentRoute
+    }
+    '/_agent/alerts': {
+      id: '/_agent/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AgentAlertsRouteImport
       parentRoute: typeof AgentRoute
     }
     '/_agent/workers/': {
@@ -167,14 +224,20 @@ declare module '@tanstack/react-router' {
 }
 
 interface AgentRouteChildren {
+  AgentAlertsRoute: typeof AgentAlertsRoute
   AgentDashboardRoute: typeof AgentDashboardRoute
+  AgentReportsRoute: typeof AgentReportsRoute
+  AgentTerritoryRoute: typeof AgentTerritoryRoute
   AgentWorkersWorkerIdRoute: typeof AgentWorkersWorkerIdRoute
   AgentWorkersNewRoute: typeof AgentWorkersNewRoute
   AgentWorkersIndexRoute: typeof AgentWorkersIndexRoute
 }
 
 const AgentRouteChildren: AgentRouteChildren = {
+  AgentAlertsRoute: AgentAlertsRoute,
   AgentDashboardRoute: AgentDashboardRoute,
+  AgentReportsRoute: AgentReportsRoute,
+  AgentTerritoryRoute: AgentTerritoryRoute,
   AgentWorkersWorkerIdRoute: AgentWorkersWorkerIdRoute,
   AgentWorkersNewRoute: AgentWorkersNewRoute,
   AgentWorkersIndexRoute: AgentWorkersIndexRoute,
