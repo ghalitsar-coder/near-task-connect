@@ -31,7 +31,7 @@ export function ApiOrderStatusTimeline({ status }: { status: string }) {
             </span>
             <div>
               <div className={`font-semibold ${active ? "text-ink" : done ? "text-body" : "text-mute"}`}>
-                {orderStatusLabel(s)}
+                {orderStatusLabel(s)} 
               </div>
               {active && <div className="text-xs text-mute mt-0.5">Sedang berlangsung…</div>}
             </div>

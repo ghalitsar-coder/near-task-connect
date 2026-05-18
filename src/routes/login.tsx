@@ -1,17 +1,31 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Github, Loader2 } from "lucide-react";
 import { TopNav } from "@/components/shell/TopNav";
 import { WiseButton } from "@/components/brand/WiseButton";
 import { requestOtpFn } from "@/lib/auth.server";
 import { useSessionHydrated } from "@/lib/auth/hydration";
 import { useSessionStore } from "@/stores/useSessionStore";
+import { startOAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Masuk · KerjaDekat" }] }),
   component: LoginPage,
 });
+
+function getAuthErrorMessage(err: unknown) {
+  // if (err instanceof z.ZodError) {
+  //   return err.issues[0]?.message ?? "Periksa kembali isian form";
+  // }
+
+  if (err instanceof Error) {
+    return err.message;
+  }
+
+  return "Authentication failed";
+}
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -20,6 +34,16 @@ function LoginPage() {
   const [touched, setTouched] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const valid = /^8\d{8,11}$/.test(phone);
+
+  const startOAuthFlow = async (provider: "google" | "github") => {
+    setError(null);
+
+    try {
+      await startOAuth(provider);
+    } catch (err) {
+      setError(getAuthErrorMessage(err));
+    }
+  };
 
   useEffect(() => {
     if (!hydrated || !authed || !accessToken) return;
@@ -110,20 +134,38 @@ function LoginPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <a
-              href={`/api/auth/signin/google?callbackUrl=${encodeURIComponent("/auth/complete")}`}
-              className="btn-tertiary text-center text-sm !py-3"
-            >
-              Google
-            </a>
-            <a
-              href={`/api/auth/signin/github?callbackUrl=${encodeURIComponent("/auth/complete")}`}
-              className="btn-tertiary text-center text-sm !py-3"
-            >
-              GitHub
-            </a>
-          </div>
+          <div className="grid gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 w-full justify-center border-hairline-strong bg-canvas shadow-none hover:bg-surface"
+                  disabled={false}
+                  onClick={() => {
+                    void startOAuthFlow("google");
+                  }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-4 w-4">
+                    <path
+                      d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  Continue with Google
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 w-full justify-center border-hairline-strong bg-canvas shadow-none hover:bg-surface"
+                  disabled={false}
+                  onClick={() => {
+                    void startOAuthFlow("github");
+                  }}
+                >
+                  <Github className="h-4 w-4" />
+                  Continue with GitHub
+                </Button>
+              </div>
 
           <p className="text-xs text-mute text-center">
             Dengan lanjut, kamu setuju dengan{" "}

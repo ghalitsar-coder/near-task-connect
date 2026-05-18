@@ -6,6 +6,8 @@ import type { StartAuthJSConfig } from "start-authjs";
  * Auth.js (OAuth) — Google & GitHub.
  * Env vars mirror backend/.env.example (server-only, not VITE_ prefixed).
  */
+delete process.env.AUTH_URL;
+
 export const authConfig: StartAuthJSConfig = {
   secret: process.env.AUTH_SECRET,
   trustHost: true,

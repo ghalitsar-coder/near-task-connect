@@ -137,7 +137,7 @@ function OrderPage() {
             <div className="flex items-center justify-between flex-wrap gap-2">
               <span className="badge-positive">
                 <span className="size-1.5 rounded-full bg-positive animate-pulse" />
-                {orderStatusLabel(order.Status)}
+                {orderStatusLabel(order.Status)} a
               </span>
               <span className="text-xs text-mute">dibuat {formatRelative(order.CreatedAt)}</span>
             </div>
