@@ -9,18 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WorkerRouteImport } from './routes/worker'
 import { Route as OtpRouteImport } from './routes/otp'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ConsumerRouteImport } from './routes/consumer'
+import { Route as AgentRouteImport } from './routes/agent'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConsumerIndexRouteImport } from './routes/consumer.index'
+import { Route as AgentIndexRouteImport } from './routes/agent.index'
 import { Route as ConsumerServicesRouteImport } from './routes/consumer.services'
 import { Route as ConsumerProfileRouteImport } from './routes/consumer.profile'
 import { Route as ConsumerHistoryRouteImport } from './routes/consumer.history'
+import { Route as AgentRegisterRouteImport } from './routes/agent.register'
 import { Route as ConsumerWorkerIdRouteImport } from './routes/consumer.worker.$id'
 import { Route as ConsumerPaymentIdRouteImport } from './routes/consumer.payment.$id'
 import { Route as ConsumerOrderIdRouteImport } from './routes/consumer.order.$id'
 
+const WorkerRoute = WorkerRouteImport.update({
+  id: '/worker',
+  path: '/worker',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OtpRoute = OtpRouteImport.update({
   id: '/otp',
   path: '/otp',
@@ -36,6 +45,11 @@ const ConsumerRoute = ConsumerRouteImport.update({
   path: '/consumer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentRoute = AgentRouteImport.update({
+  id: '/agent',
+  path: '/agent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -45,6 +59,11 @@ const ConsumerIndexRoute = ConsumerIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ConsumerRoute,
+} as any)
+const AgentIndexRoute = AgentIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AgentRoute,
 } as any)
 const ConsumerServicesRoute = ConsumerServicesRouteImport.update({
   id: '/services',
@@ -60,6 +79,11 @@ const ConsumerHistoryRoute = ConsumerHistoryRouteImport.update({
   id: '/history',
   path: '/history',
   getParentRoute: () => ConsumerRoute,
+} as any)
+const AgentRegisterRoute = AgentRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => AgentRoute,
 } as any)
 const ConsumerWorkerIdRoute = ConsumerWorkerIdRouteImport.update({
   id: '/worker/$id',
@@ -79,12 +103,16 @@ const ConsumerOrderIdRoute = ConsumerOrderIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/agent': typeof AgentRouteWithChildren
   '/consumer': typeof ConsumerRouteWithChildren
   '/login': typeof LoginRoute
   '/otp': typeof OtpRoute
+  '/worker': typeof WorkerRoute
+  '/agent/register': typeof AgentRegisterRoute
   '/consumer/history': typeof ConsumerHistoryRoute
   '/consumer/profile': typeof ConsumerProfileRoute
   '/consumer/services': typeof ConsumerServicesRoute
+  '/agent/': typeof AgentIndexRoute
   '/consumer/': typeof ConsumerIndexRoute
   '/consumer/order/$id': typeof ConsumerOrderIdRoute
   '/consumer/payment/$id': typeof ConsumerPaymentIdRoute
@@ -94,9 +122,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/otp': typeof OtpRoute
+  '/worker': typeof WorkerRoute
+  '/agent/register': typeof AgentRegisterRoute
   '/consumer/history': typeof ConsumerHistoryRoute
   '/consumer/profile': typeof ConsumerProfileRoute
   '/consumer/services': typeof ConsumerServicesRoute
+  '/agent': typeof AgentIndexRoute
   '/consumer': typeof ConsumerIndexRoute
   '/consumer/order/$id': typeof ConsumerOrderIdRoute
   '/consumer/payment/$id': typeof ConsumerPaymentIdRoute
@@ -105,12 +136,16 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/agent': typeof AgentRouteWithChildren
   '/consumer': typeof ConsumerRouteWithChildren
   '/login': typeof LoginRoute
   '/otp': typeof OtpRoute
+  '/worker': typeof WorkerRoute
+  '/agent/register': typeof AgentRegisterRoute
   '/consumer/history': typeof ConsumerHistoryRoute
   '/consumer/profile': typeof ConsumerProfileRoute
   '/consumer/services': typeof ConsumerServicesRoute
+  '/agent/': typeof AgentIndexRoute
   '/consumer/': typeof ConsumerIndexRoute
   '/consumer/order/$id': typeof ConsumerOrderIdRoute
   '/consumer/payment/$id': typeof ConsumerPaymentIdRoute
@@ -120,12 +155,16 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/agent'
     | '/consumer'
     | '/login'
     | '/otp'
+    | '/worker'
+    | '/agent/register'
     | '/consumer/history'
     | '/consumer/profile'
     | '/consumer/services'
+    | '/agent/'
     | '/consumer/'
     | '/consumer/order/$id'
     | '/consumer/payment/$id'
@@ -135,9 +174,12 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/otp'
+    | '/worker'
+    | '/agent/register'
     | '/consumer/history'
     | '/consumer/profile'
     | '/consumer/services'
+    | '/agent'
     | '/consumer'
     | '/consumer/order/$id'
     | '/consumer/payment/$id'
@@ -145,12 +187,16 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/agent'
     | '/consumer'
     | '/login'
     | '/otp'
+    | '/worker'
+    | '/agent/register'
     | '/consumer/history'
     | '/consumer/profile'
     | '/consumer/services'
+    | '/agent/'
     | '/consumer/'
     | '/consumer/order/$id'
     | '/consumer/payment/$id'
@@ -159,13 +205,22 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AgentRoute: typeof AgentRouteWithChildren
   ConsumerRoute: typeof ConsumerRouteWithChildren
   LoginRoute: typeof LoginRoute
   OtpRoute: typeof OtpRoute
+  WorkerRoute: typeof WorkerRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/worker': {
+      id: '/worker'
+      path: '/worker'
+      fullPath: '/worker'
+      preLoaderRoute: typeof WorkerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/otp': {
       id: '/otp'
       path: '/otp'
@@ -187,6 +242,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsumerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agent': {
+      id: '/agent'
+      path: '/agent'
+      fullPath: '/agent'
+      preLoaderRoute: typeof AgentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -200,6 +262,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/consumer/'
       preLoaderRoute: typeof ConsumerIndexRouteImport
       parentRoute: typeof ConsumerRoute
+    }
+    '/agent/': {
+      id: '/agent/'
+      path: '/'
+      fullPath: '/agent/'
+      preLoaderRoute: typeof AgentIndexRouteImport
+      parentRoute: typeof AgentRoute
     }
     '/consumer/services': {
       id: '/consumer/services'
@@ -221,6 +290,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/consumer/history'
       preLoaderRoute: typeof ConsumerHistoryRouteImport
       parentRoute: typeof ConsumerRoute
+    }
+    '/agent/register': {
+      id: '/agent/register'
+      path: '/register'
+      fullPath: '/agent/register'
+      preLoaderRoute: typeof AgentRegisterRouteImport
+      parentRoute: typeof AgentRoute
     }
     '/consumer/worker/$id': {
       id: '/consumer/worker/$id'
@@ -245,6 +321,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AgentRouteChildren {
+  AgentRegisterRoute: typeof AgentRegisterRoute
+  AgentIndexRoute: typeof AgentIndexRoute
+}
+
+const AgentRouteChildren: AgentRouteChildren = {
+  AgentRegisterRoute: AgentRegisterRoute,
+  AgentIndexRoute: AgentIndexRoute,
+}
+
+const AgentRouteWithChildren = AgentRoute._addFileChildren(AgentRouteChildren)
 
 interface ConsumerRouteChildren {
   ConsumerHistoryRoute: typeof ConsumerHistoryRoute
@@ -272,9 +360,11 @@ const ConsumerRouteWithChildren = ConsumerRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AgentRoute: AgentRouteWithChildren,
   ConsumerRoute: ConsumerRouteWithChildren,
   LoginRoute: LoginRoute,
   OtpRoute: OtpRoute,
+  WorkerRoute: WorkerRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
