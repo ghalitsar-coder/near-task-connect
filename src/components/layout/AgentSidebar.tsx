@@ -11,19 +11,21 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAlertCount } from "@/hooks/useAlertCount";
 
-const NAV = [
+type NavItem = {
+  to: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  badge?: boolean;
+};
+
+const NAV: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/workers", label: "Pekerja", icon: Users },
   { to: "/workers/new", label: "Daftar Pekerja", icon: UserPlus },
   { to: "/territory", label: "Peta Teritori", icon: Map },
   { to: "/reports", label: "Laporan", icon: BarChart3 },
   { to: "/alerts", label: "SLA Alerts", icon: AlertTriangle, badge: true },
-] as const satisfies ReadonlyArray<{
-  to: string;
-  label: string;
-  icon: typeof LayoutDashboard;
-  badge?: boolean;
-}>;
+];
 
 export function AgentSidebar() {
   const path = useRouterState({ select: (s) => s.location.pathname });
