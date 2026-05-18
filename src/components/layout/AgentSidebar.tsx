@@ -55,7 +55,7 @@ export function AgentSidebar() {
           return (
             <Link
               key={item.to}
-              to={item.to}
+              to={item.to as string}
               className={cn(
                 "flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                 active
