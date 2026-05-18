@@ -26,7 +26,7 @@ import {
   YAxis,
 } from "recharts";
 
-export const Route = createFileRoute("/_agent/")({
+export const Route = createFileRoute("/_agent/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — KerjaDekat Agen" }] }),
   component: DashboardPage,
 });
