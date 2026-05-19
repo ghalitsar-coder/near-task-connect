@@ -37,7 +37,7 @@ export async function startOAuth(provider: "google" | "github") {
     if (typeof window === "undefined") return;
   
     const csrfToken = await getCsrfToken();
-    const callbackUrl = `${window.location.origin}/`;
+    const callbackUrl = `${window.location.origin}/auth/complete`;
   
     const form = document.createElement("form");
     form.method = "POST";

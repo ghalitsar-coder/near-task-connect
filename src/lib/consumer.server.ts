@@ -39,10 +39,10 @@ async function authFetch<T>(
       } catch {
         /* ignore */
       }
-      return { ok: false, data: null as T, error: mapHttpError(res.status, errBody) };
+      return { ok: false, data: null as T, error: mapHttpError(res.status, errBody), status: res.status };
     }
     if (res.status === 204) {
-      return { ok: true, data: null as T };
+      return { ok: true, data: null as T, status: 204 };
     }
     const data = (await res.json()) as T;
     return { ok: true, data };
@@ -93,7 +93,7 @@ export const getNearbyWorkersFn = createServerFn({ method: "GET" })
         `/workers/nearby?${params}`,
         accessToken,
       );
-      if (!res.ok) return { ok: false, data: { items: [] }, error: res.error };
+      if (!res.ok) return { ok: false, data: { items: [] }, error: res.error, status: res.status };
       return { ok: true, data: { items: res.data?.items ?? [] } };
     },
   );
@@ -104,7 +104,7 @@ export const getConsumerSkillCategoriesFn = createServerFn({ method: "GET" })
     const accessToken =
       (data as { accessToken?: string } | undefined)?.accessToken ?? context?.accessToken ?? "";
     const res = await authFetch<{ items: SkillCategory[] }>("/skill-categories", accessToken);
-    if (!res.ok) return { ok: false, data: { items: [] }, error: res.error };
+    if (!res.ok) return { ok: false, data: { items: [] }, error: res.error, status: res.status };
     return { ok: true, data: { items: res.data?.items ?? [] } };
   });
 
@@ -119,7 +119,7 @@ export const listConsumerOrdersFn = createServerFn({ method: "GET" })
       `/orders?limit=${limit}&offset=${offset}`,
       accessToken,
     );
-    if (!res.ok) return { ok: false, data: { items: [] }, error: res.error };
+    if (!res.ok) return { ok: false, data: { items: [] }, error: res.error, status: res.status };
     return { ok: true, data: { items: res.data?.items ?? [] } };
   });
 

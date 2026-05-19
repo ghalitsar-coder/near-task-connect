@@ -1,13 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, MapPin, ChevronRight, AlertCircle, Loader2, Users } from "lucide-react";
+import { Search, MapPin, ChevronRight, AlertCircle, Loader2, Users, LogOut, User as UserIcon } from "lucide-react";
 import { getConsumerSkillCategoriesFn, getNearbyWorkersFn } from "@/lib/consumer.server";
 import { skillEmoji } from "@/lib/orderLabels";
 import { DEFAULT_LAT, DEFAULT_LNG, readUserPosition } from "@/lib/geo";
 import { nearbyToMapWorker } from "@/lib/workerMapUtils";
 import type { SkillCategory } from "@/lib/api/types";
 import { useSessionStore } from "@/stores/useSessionStore";
+import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useLogout } from "@/hooks/use-auth";
 
 const NearbyMap = lazy(() =>
   import("@/components/map/NearbyMap").then((m) => ({ default: m.NearbyMap }))
@@ -30,6 +40,14 @@ function ConsumerHome() {
   const [center, setCenter] = useState<[number, number]>([DEFAULT_LAT, DEFAULT_LNG]);
   const [mapMode, setMapMode] = useState<"leaflet" | "mapcn">("leaflet");
   const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
+
+  const signOut = useSessionStore((s) => s.signOut);
+  const logoutMutation = useLogout();
+  
+  const handleLogout = () => {
+    signOut();
+    logoutMutation.mutate();
+  };
 
   useEffect(() => {
     readUserPosition().then(({ lat, lng }) => setCenter([lat, lng]));
@@ -85,12 +103,31 @@ function ConsumerHome() {
                 <MapPin size={14} /> Lokasi GPS aktif
               </p>
             </div>
-            <Link
-              to="/consumer/profile"
-              className="size-10 rounded-full bg-[#ffffff] border border-ink/10 flex items-center justify-center font-display font-black"
-            >
-              {name[0] ?? "?"}
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="size-10 rounded-full bg-[#ffffff] border border-ink/10 flex items-center justify-center font-display font-black hover:bg-ink/5 transition-colors"
+                >
+                  {name[0] ?? "?"}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-[#ffffff]">
+                <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/consumer/profile" className="cursor-pointer">
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    Profil
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-[#d03238] cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Keluar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <h1 className="display-md mt-5 leading-tight md:mt-0">
@@ -186,6 +223,8 @@ function ConsumerHome() {
                 radiusKm={5}
                 selectedWorkerId={selectedWorkerId}
                 onSelectWorker={setSelectedWorkerId}
+                //  center={tegalrejoCenter}
+     
               />
             )}
           </Suspense>
@@ -300,7 +339,7 @@ function ConsumerHome() {
             />
           )}
         </Suspense>
-        <div className="absolute top-6 left-6 z-[400] bg-[#ffffff]/90 backdrop-blur-md px-4 py-3 rounded-[24px] border border-ink/10 shadow-sm flex items-center gap-3">
+        <div className={cn("absolute z-[400] bg-[#ffffff]/90 backdrop-blur-md px-4 py-3 rounded-[24px] border border-ink/10 shadow-sm flex items-center gap-3",mapMode === "mapcn" ? "right-6 bottom-10" : "top-6 left-6")}>
           <div className="size-8 rounded-full bg-[#e2f6d5] text-[#163300] flex items-center justify-center">
             <MapPin size={16} />
           </div>

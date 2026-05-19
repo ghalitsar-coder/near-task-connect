@@ -63,7 +63,18 @@ export function NearbyMap({
 
   return (
     <div className="overflow-hidden rounded-xl border border-ink/10" style={{ height }}>
-      <MapContainer center={center} zoom={zoom} scrollWheelZoom={false} style={{ height: "100%" }}>
+      <MapContainer
+        center={center} zoom={zoom}
+        scrollWheelZoom
+        // attributionControl={false}
+        zoomControl={false}
+        // dragging={false}
+        boxZoom={true}
+        doubleClickZoom={true}
+        // tap={false}
+        touchZoom={false}
+        style={{ height: "100%", width: "100%" }}
+      >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

@@ -23,7 +23,11 @@ async function postJson<T>(path: string, body: unknown): Promise<ApiResult<T>> {
       return { ok: true, data: null as T };
     }
     if (!res.ok) {
-      return { ok: false, data: null as T, error: `HTTP ${res.status}` };
+      let errBody: { error?: string } | undefined;
+      try {
+        errBody = (await res.json()) as { error?: string };
+      } catch {}
+      return { ok: false, data: null as T, error: errBody?.error ?? `HTTP ${res.status}`, status: res.status };
     }
     const data = (await res.json()) as T;
     return { ok: true, data };
@@ -51,7 +55,7 @@ async function getJsonAuth<T>(path: string, accessToken: string): Promise<ApiRes
       signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) {
-      return { ok: false, data: null as T, error: `HTTP ${res.status}` };
+      return { ok: false, data: null as T, error: `HTTP ${res.status}`, status: res.status };
     }
     const data = (await res.json()) as T;
     return { ok: true, data };
@@ -110,3 +114,22 @@ export const getMeFn = createServerFn({ method: "GET" })
       (data as { accessToken?: string } | undefined)?.accessToken ?? context?.accessToken ?? "";
     return getJsonAuth<ApiUser>("/me", accessToken);
   });
+
+export const loginEmailFn = createServerFn({ method: "POST" }).handler(async ({ data }) => {
+  const input = data as { email?: string; password?: string } | undefined;
+  return postJson<{ phone_number: string; role: string }>("/auth/login", {
+    email: input?.email ?? "",
+    password: input?.password ?? "",
+  });
+});
+
+export const registerEmailFn = createServerFn({ method: "POST" }).handler(async ({ data }) => {
+  const input = data as { email?: string; password?: string; name?: string; phone_number?: string; role?: string } | undefined;
+  return postJson<null>("/auth/register", {
+    email: input?.email ?? "",
+    password: input?.password ?? "",
+    name: input?.name ?? "",
+    phone_number: input?.phone_number ?? "",
+    role: input?.role ?? "consumer",
+  });
+});
