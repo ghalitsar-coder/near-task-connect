@@ -8,17 +8,17 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as AgentRouteImport } from './routes/_agent'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AgentTerritoryRouteImport } from './routes/_agent.territory'
-import { Route as AgentReportsRouteImport } from './routes/_agent.reports'
-import { Route as AgentDashboardRouteImport } from './routes/_agent.dashboard'
-import { Route as AgentAlertsRouteImport } from './routes/_agent.alerts'
-import { Route as AgentWorkersIndexRouteImport } from './routes/_agent.workers.index'
-import { Route as AgentWorkersNewRouteImport } from './routes/_agent.workers.new'
-import { Route as AgentWorkersWorkerIdRouteImport } from './routes/_agent.workers.$workerId'
+import { Route as rootRouteImport } from './routes/dashboard/__root.tsx'
+import { Route as LoginRouteImport } from './routes/dashboard/login.tsx'
+import { Route as AgentRouteImport } from './routes/dashboard/_agent.tsx'
+import { Route as IndexRouteImport } from './routes/dashboard/index'
+import { Route as AgentTerritoryRouteImport } from './routes/dashboard/_agent.territory.tsx'
+import { Route as AgentReportsRouteImport } from './routes/dashboard/_agent.reports.tsx'
+import { Route as AgentDashboardRouteImport } from './routes/dashboard/_agent.dashboard.tsx'
+import { Route as AgentAlertsRouteImport } from './routes/dashboard/_agent.alerts.tsx'
+import { Route as AgentWorkersIndexRouteImport } from './routes/dashboard/_agent.workers.index.tsx'
+import { Route as AgentWorkersNewRouteImport } from './routes/dashboard/_agent.workers.new.tsx'
+import { Route as AgentWorkersWorkerIdRouteImport } from './routes/dashboard/_agent.workers.$workerId.tsx'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -253,3 +253,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
