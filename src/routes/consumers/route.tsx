@@ -4,7 +4,7 @@ import { RequireAuth } from "@/lib/auth/requireAuth";
 import { Search, History, User } from "lucide-react";
 import { useSessionStore } from "@/stores/useSessionStore";
 
-export const Route = createFileRoute("/consumer")({
+export const Route = createFileRoute("/consumers")({
   component: ConsumerLayout,
 });
 
@@ -13,9 +13,9 @@ function ConsumerLayout() {
   const name = useSessionStore((s) => s.name);
 
   const nav = [
-    { to: "/consumer", label: "Eksplor", icon: Search },
-    { to: "/consumer/history", label: "Aktivitas", icon: History },
-    { to: "/consumer/profile", label: "Profil", icon: User },
+    { to: "/consumers", label: "Eksplor", icon: Search },
+    { to: "/consumers/history", label: "Aktivitas", icon: History },
+    { to: "/consumers/profile", label: "Profil", icon: User },
   ];
 
   return (
@@ -24,13 +24,13 @@ function ConsumerLayout() {
       {/* Desktop Header */}
       <header className="hidden md:flex items-center justify-between px-6 lg:px-8 py-4 bg-canvas border-b border-ink/10 sticky top-0 z-40">
         <div className="flex items-center gap-10">
-          <Link to="/consumer" className="font-display font-black text-2xl tracking-tight">
+          <Link to="/consumers" className="font-display font-black text-2xl tracking-tight">
             kerja<span className="text-ink">dekat</span>
             <span className="inline-block ml-1 size-2 rounded-full bg-primary align-middle" />
           </Link>
           <nav className="flex items-center gap-6">
             {nav.map(({ to, label, icon: Icon }) => {
-              const active = loc.pathname === to || (to === "/consumer" && loc.pathname === "/consumer/");
+              const active = loc.pathname === to || (to === "/consumers" && loc.pathname === "/consumers/");
               return (
                 <Link
                   key={to}
@@ -46,7 +46,7 @@ function ConsumerLayout() {
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          <Link to="/consumer/profile" className="flex items-center gap-2 hover:bg-canvas-soft px-3 py-1.5 rounded-full transition-colors border border-transparent hover:border-ink/10">
+          <Link to="/consumers/profile" className="flex items-center gap-2 hover:bg-canvas-soft px-3 py-1.5 rounded-full transition-colors border border-transparent hover:border-ink/10">
             <div className="size-8 rounded-full bg-primary-pale text-primary-deep flex items-center justify-center font-display font-black text-sm">
               {name[0]}
             </div>

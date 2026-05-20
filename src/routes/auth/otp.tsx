@@ -7,7 +7,7 @@ import { WiseButton } from "@/components/brand/WiseButton";
 import { getMeFn, requestOtpFn, verifyOtpFn } from "@/lib/auth.server";
 import { useSessionStore, type Role } from "@/stores/useSessionStore";
 
-export const Route = createFileRoute("/otp")({
+export const Route = createFileRoute("/auth/otp")({
   head: () => ({ meta: [{ title: "Verifikasi OTP · KerjaDekat" }] }),
   component: OtpPage,
 });
@@ -49,9 +49,9 @@ function OtpPage() {
       return res.data;
     },
     onSuccess: () => {
-      if (role === "agent" || role === "admin") navigate({ to: "/agent" });
-      else if (role === "worker") navigate({ to: "/worker" });
-      else navigate({ to: "/consumer" });
+      if (role === "agent" || role === "admin") navigate({ to: "/agents" });
+      else if (role === "worker") navigate({ to: "/workers" });
+      else navigate({ to: "/consumers" });
     },
     onError: (err) => {
       setError(err instanceof Error ? err.message : "Verifikasi gagal");
@@ -99,7 +99,7 @@ function OtpPage() {
 
   return (
     <div className="min-h-screen bg-[#e8ebe6]">
-      <TopNav backTo="/login" />
+      <TopNav backTo="/auth/login" />
       <main className="max-w-md mx-auto px-6 pt-6 pb-20">
         <h1 className="display-xl">Cek WhatsApp</h1>
         <p className="text-body mt-2">
@@ -170,7 +170,7 @@ function OtpPage() {
           kode OTP yang dikirim.
         </div>
       </main>
-      
+
     </div>
   );
 }

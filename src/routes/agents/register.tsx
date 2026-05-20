@@ -8,7 +8,7 @@ import type { Kelurahan, SkillCategory } from "@/lib/api/types";
 import { fileToPayload } from "@/lib/uploads";
 import { useSessionStore } from "@/stores/useSessionStore";
 
-export const Route = createFileRoute("/agent/register")({
+export const Route = createFileRoute("/agents/register")({
   head: () => ({ meta: [{ title: "Daftarkan Pekerja · KerjaDekat" }] }),
   component: RegisterWorker,
 });
@@ -147,13 +147,13 @@ function RegisterWorker() {
   if (!authed) {
     return (
       <main className="p-5 lg:p-10 max-w-3xl">
-        <Link to="/agent" className="text-sm font-semibold text-body inline-block">
+        <Link to="/agents" className="text-sm font-semibold text-body inline-block">
           ← Kembali ke dasbor
         </Link>
         <div className="mt-6 rounded-[24px] bg-[#ffffff] p-6">
           <h1 className="display-md">Masuk sebagai agen</h1>
           <p className="text-body mt-2">Anda perlu login agen terlebih dahulu untuk mendaftarkan pekerja.</p>
-          <Link to="/login" className="btn-primary inline-flex mt-4">
+          <Link to="/auth/login" className="btn-primary inline-flex mt-4">
             Masuk sekarang
           </Link>
         </div>
@@ -163,7 +163,7 @@ function RegisterWorker() {
 
   return (
     <main className="p-5 lg:p-10 max-w-3xl">
-      <Link to="/agent" className="text-sm font-semibold text-body inline-block">
+      <Link to="/agents" className="text-sm font-semibold text-body inline-block">
         ← Kembali ke dasbor
       </Link>
       <h1 className="display-md mt-2">Daftarkan pekerja baru</h1>
@@ -429,7 +429,7 @@ function RegisterWorker() {
             >
               Daftarkan lagi
             </button>
-            <WiseButton id="agent-register-dashboard-btn" onClick={() => navigate({ to: "/agent" })}>
+            <WiseButton id="agent-register-dashboard-btn" onClick={() => navigate({ to: "/agents" })}>
               Kembali ke dasbor
             </WiseButton>
           </div>

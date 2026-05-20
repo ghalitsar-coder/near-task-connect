@@ -4,7 +4,7 @@ import { AlertCircle, Loader2, LogOut, Shield, Wallet, HelpCircle } from "lucide
 import { getMeFn } from "@/lib/auth.server";
 import { useSessionStore } from "@/stores/useSessionStore";
 
-export const Route = createFileRoute("/consumer/profile")({
+export const Route = createFileRoute("/consumers/profile")({
   head: () => ({ meta: [{ title: "Akun · KerjaDekat" }] }),
   component: ProfilePage,
 });

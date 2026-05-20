@@ -26,7 +26,7 @@ const MapcnNearbyMap = lazy(() =>
   import("@/components/map/MapcnNearbyMap").then((m) => ({ default: m.MapcnNearbyMap }))
 );
 
-export const Route = createFileRoute("/consumer/")({
+export const Route = createFileRoute("/consumers/")({
   head: () => ({ meta: [{ title: "Beranda · KerjaDekat" }] }),
   component: ConsumerHome,
 });
@@ -116,7 +116,7 @@ function ConsumerHome() {
                 <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to="/consumer/profile" className="cursor-pointer">
+                  <Link to="/consumers/profile" className="cursor-pointer">
                     <UserIcon className="mr-2 h-4 w-4" />
                     Profil
                   </Link>
@@ -241,7 +241,7 @@ function ConsumerHome() {
           <div className="flex items-baseline justify-between sticky top-0 bg-[#e8ebe6]/80 backdrop-blur-md py-2 z-10 md:bg-transparent md:backdrop-blur-none md:static">
             <h2 className="font-display font-black text-xl">Pesan jasa</h2>
             <Link
-              to="/consumer/services"
+              to="/consumers/services"
               className="text-sm font-semibold inline-flex items-center text-ink hover:text-ink-deep transition-colors"
             >
               Lihat semua <ChevronRight size={14} />
@@ -267,7 +267,7 @@ function ConsumerHome() {
                   <Link
                     key={s.ID}
                     id={`consumer-home-skill-${s.ID}`}
-                    to="/consumer/worker/$id"
+                    to="/consumers/worker/$id"
                     params={{ id: String(s.ID) }}
                     className="rounded-[24px] bg-[#ffffff] p-5 flex items-center gap-4 hover:shadow-sm transition-shadow border border-ink/5"
                   >

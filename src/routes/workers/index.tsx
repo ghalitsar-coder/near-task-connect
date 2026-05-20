@@ -7,7 +7,7 @@ import { useSessionStore } from "@/stores/useSessionStore";
 import { mockServices } from "@/data/mockServices";
 import { formatIDR } from "@/lib/formatCurrency";
 
-export const Route = createFileRoute("/worker")({
+export const Route = createFileRoute("/workers/")({
   head: () => ({ meta: [{ title: "Dasbor Pekerja · KerjaDekat" }] }),
   component: WorkerDashboard,
 });
@@ -137,7 +137,7 @@ function WorkerDashboard() {
           <OfferCard
             offer={offer}
             countdown={countdown}
-            onAccept={() => navigate({ to: "/consumer/order/$id", params: { id: "ord-LIVE" } })}
+            onAccept={() => navigate({ to: "/consumers/order/$id", params: { id: "ord-LIVE" } })}
             onReject={() => setOffer(null)}
           />
         )}

@@ -6,7 +6,7 @@ import { formatIDR } from "@/lib/formatCurrency";
 export function WorkerCard({ worker }: { worker: Worker }) {
   return (
     <Link
-      to="/consumer/worker/$id"
+      to="/consumers/worker/$id"
       params={{ id: worker.id }}
       className="card-content flex items-center gap-4 hover:shadow-sm transition-shadow"
     >

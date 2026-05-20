@@ -6,7 +6,7 @@ import { orderStatusLabel, skillEmoji } from "@/lib/orderLabels";
 import { formatIDR, formatRelative } from "@/lib/formatCurrency";
 import { useSessionStore } from "@/stores/useSessionStore";
 
-export const Route = createFileRoute("/consumer/history")({
+export const Route = createFileRoute("/consumers/history")({
   head: () => ({ meta: [{ title: "Riwayat · KerjaDekat" }] }),
   component: HistoryPage,
 });
@@ -60,7 +60,7 @@ function HistoryPage() {
             return (
               <Link
                 key={o.ID}
-                to="/consumer/order/$id"
+                to="/consumers/order/$id"
                 params={{ id: o.ID }}
                 className="rounded-[24px] bg-[#ffffff] p-6 flex items-center gap-3"
               >

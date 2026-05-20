@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Search, UserPlus, Users } from "lucide-react";
 import { useSessionStore } from "@/stores/useSessionStore";
 
-export const Route = createFileRoute("/agent/")({
+export const Route = createFileRoute("/agents/")({
   head: () => ({ meta: [{ title: "Dasbor Agen · KerjaDekat" }] }),
   component: AgentHome,
 });
@@ -23,7 +23,7 @@ function AgentHome() {
           </h1>
           <p className="text-body mt-1">Wilayah binaan: {territoryLabel}.</p>
         </div>
-        <Link to="/agent/register" className="btn-primary" id="agent-dashboard-register-btn">
+        <Link to="/agents/register" className="btn-primary" id="agent-dashboard-register-btn">
           <UserPlus size={16} /> Daftarkan pekerja
         </Link>
       </div>

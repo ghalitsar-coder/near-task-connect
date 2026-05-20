@@ -13,7 +13,7 @@ type Props = {
 /**
  * Waits for persisted session hydration before auth checks (fixes refresh → /login bug).
  */
-export function RequireAuth({ children, loginTo = "/login" }: Props) {
+export function RequireAuth({ children, loginTo = "/auth/login" }: Props) {
   const hydrated = useSessionHydrated();
   const navigate = useNavigate();
   const authed = useSessionStore((s) => s.authed);

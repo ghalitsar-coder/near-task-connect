@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, Link, useLocation, useNavigate } from "@tansta
 import { LayoutDashboard, UserPlus, MapPin, LogOut } from "lucide-react";
 import { useSessionStore } from "@/stores/useSessionStore";
 
-export const Route = createFileRoute("/agent")({
+export const Route = createFileRoute("/agents")({
   component: AgentLayout,
 });
 
@@ -12,8 +12,8 @@ function AgentLayout() {
   const { name, kelurahanId, signOut } = useSessionStore();
 
   const nav = [
-    { to: "/agent", label: "Dasbor", icon: LayoutDashboard },
-    { to: "/agent/register", label: "Daftarkan pekerja", icon: UserPlus },
+    { to: "/agents", label: "Dasbor", icon: LayoutDashboard },
+    { to: "/agents/register", label: "Daftarkan pekerja", icon: UserPlus },
   ];
 
   const territoryLabel = kelurahanId ? `Kel. #${kelurahanId}` : "Agen Komunitas";
@@ -29,7 +29,7 @@ function AgentLayout() {
 
           <nav className="mt-8 space-y-1">
             {nav.map(({ to, label, icon: Icon }) => {
-              const active = loc.pathname === to || (to === "/agent" && loc.pathname === "/agent/");
+              const active = loc.pathname === to || (to === "/agents" && loc.pathname === "/agents/");
               return (
                 <Link
                   key={to}

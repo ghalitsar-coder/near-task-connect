@@ -8,7 +8,7 @@ import { paymentStatusLabel } from "@/lib/orderLabels";
 import { formatIDR } from "@/lib/formatCurrency";
 import { useSessionStore } from "@/stores/useSessionStore";
 
-export const Route = createFileRoute("/consumer/payment/$id")({
+export const Route = createFileRoute("/consumers/payment/$id")({
   head: () => ({ meta: [{ title: "Pembayaran · KerjaDekat" }] }),
   component: PaymentPage,
 });
@@ -94,7 +94,7 @@ function PaymentPage() {
             id="consumer-payment-goto-order-btn"
             full
             className="mt-6"
-            onClick={() => navigate({ to: "/consumer/order/$id", params: { id: order.ID } })}
+            onClick={() => navigate({ to: "/consumers/order/$id", params: { id: order.ID } })}
           >
             Lihat status pesanan
           </WiseButton>

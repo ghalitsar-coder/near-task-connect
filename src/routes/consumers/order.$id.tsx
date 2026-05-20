@@ -22,13 +22,13 @@ const MapcnNearbyMap = lazy(() =>
   import("@/components/map/MapcnNearbyMap").then((m) => ({ default: m.MapcnNearbyMap }))
 );
 
-export const Route = createFileRoute("/consumer/order/$id")({
+export const Route = createFileRoute("/consumers/order/$id")({
   head: () => ({ meta: [{ title: "Status Order · KerjaDekat" }] }),
   component: OrderPage,
 });
 
 function OrderPage() {
-  const { id } = useParams({ from: "/consumer/order/$id" });
+  const { id } = useParams({ from: "/consumers/order/$id" });
   const accessToken = useSessionStore((s) => s.accessToken);
   const authed = useSessionStore((s) => s.authed);
   const queryClient = useQueryClient();
@@ -136,7 +136,7 @@ function OrderPage() {
       <div className="md:w-[420px] lg:w-[480px] md:shrink-0 md:border-r border-ink/10 md:overflow-y-auto bg-[#e8ebe6] md:bg-[#ffffff] md:flex md:flex-col">
         <div className="hidden md:flex items-center gap-3 px-6 py-5 border-b border-ink/10 bg-[#ffffff] sticky top-0 z-10">
           <Link
-            to="/consumer"
+            to="/consumers"
             className="size-8 rounded-full bg-[#e8ebe6] flex items-center justify-center hover:bg-ink/5 transition-colors"
           >
             <ArrowLeft size={16} />
@@ -276,7 +276,7 @@ function OrderPage() {
                 <WiseButton full variant="tertiary" disabled>
                   Beri ulasan (segera hadir)
                 </WiseButton>
-                <Link to="/consumer/history" className="btn-tertiary w-full text-center">
+                <Link to="/consumers/history" className="btn-tertiary w-full text-center">
                   Lihat riwayat pesanan
                 </Link>
               </div>
@@ -314,7 +314,7 @@ function OrderPage() {
                 Batalkan pesanan
               </button>
             )}
-            <Link to="/consumer" className="btn-tertiary w-full md:hidden text-center">
+            <Link to="/consumers" className="btn-tertiary w-full md:hidden text-center">
               Kembali ke beranda
             </Link>
           </div>

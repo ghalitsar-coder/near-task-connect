@@ -36,9 +36,9 @@ function AuthCompletePage() {
           role: ["consumer", "worker", "agent", "admin"].includes(apiRole) ? apiRole : role,
         });
       }
-      if (role === "agent" || role === "admin") navigate({ to: "/agent" });
-      else if (role === "worker") navigate({ to: "/worker" });
-      else navigate({ to: "/consumer" });
+      if (role === "agent" || role === "admin") navigate({ to: "/agents" });
+      else if (role === "worker") navigate({ to: "/workers" });
+      else navigate({ to: "/consumers" });
     })();
     return () => {
       cancelled = true;

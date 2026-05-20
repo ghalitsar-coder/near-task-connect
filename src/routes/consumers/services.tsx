@@ -7,7 +7,7 @@ import { skillEmoji } from "@/lib/orderLabels";
 import { DEFAULT_LAT, DEFAULT_LNG, readUserPosition } from "@/lib/geo";
 import { useSessionStore } from "@/stores/useSessionStore";
 
-export const Route = createFileRoute("/consumer/services")({
+export const Route = createFileRoute("/consumers/services")({
   head: () => ({ meta: [{ title: "Kategori Jasa · KerjaDekat" }] }),
   component: ServicesPage,
 });
@@ -83,7 +83,7 @@ function ServicesPage() {
             <Link
               key={s.ID}
               id={`consumer-services-skill-${s.ID}`}
-              to="/consumer/worker/$id"
+              to="/consumers/worker/$id"
               params={{ id: String(s.ID) }}
               className="rounded-[24px] bg-[#ffffff] p-6 flex flex-col gap-2 border border-ink/5 hover:shadow-sm transition-shadow"
             >

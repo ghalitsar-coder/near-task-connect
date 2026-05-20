@@ -23,7 +23,7 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   const { setRole, authed, role } = useSessionStore();
-  const dashboardUrl = role === "agent" || role === "admin" ? "/agent" : role === "worker" ? "/worker" : "/consumer";
+  const dashboardUrl = role === "agent" || role === "admin" ? "/agent" : role === "worker" ? "/workers" : "/consumers";
 
   return (
     <main className="min-h-screen bg-canvas-soft">
@@ -32,7 +32,7 @@ function Landing() {
         <span className="font-display font-black text-2xl">
           kerjadekat<span className="inline-block ml-1 size-2.5 rounded-full bg-primary align-middle" />
         </span>
-        <Link to={authed ? dashboardUrl : "/login"} className="btn-tertiary !py-2 !px-4 text-sm">
+        <Link to={authed ? dashboardUrl : "/auth/login"} className="btn-tertiary !py-2 !px-4 text-sm">
           {authed ? "Dashboard" : "Masuk"}
         </Link>
       </header>
@@ -54,10 +54,10 @@ function Landing() {
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row gap-3">
-            <Link to={authed && role === "consumer" ? "/consumer" : "/login"} onClick={() => { if(!authed) setRole("consumer") }} className="btn-primary">
+            <Link to={authed && role === "consumer" ? "/consumers" : "/auth/login"} onClick={() => { if(!authed) setRole("consumer") }} className="btn-primary">
               Pesan jasa sekarang <ArrowRight size={18} />
             </Link>
-            <Link to={authed && role === "worker" ? "/worker" : "/login"} onClick={() => { if(!authed) setRole("worker") }} className="btn-tertiary">
+            <Link to={authed && role === "worker" ? "/workers" : "/auth/login"} onClick={() => { if(!authed) setRole("worker") }} className="btn-tertiary">
               Saya pekerja
             </Link>
           </div>
@@ -86,21 +86,21 @@ function Landing() {
               role="consumer"
               title="Konsumen"
               desc="Cari pekerja terdekat, pesan & bayar admin."
-              to={authed && role === "consumer" ? "/consumer" : "/login"}
+              to={authed && role === "consumer" ? "/consumers" : "/auth/login"}
               onPick={() => { if (!authed) setRole("consumer"); }}
             />
             <RoleRow
               role="worker"
               title="Pekerja Mitra"
               desc="Terima tawaran order di sekitar lokasi."
-              to={authed && role === "worker" ? "/worker" : "/login"}
+              to={authed && role === "worker" ? "/workers" : "/auth/login"}
               onPick={() => { if (!authed) setRole("worker"); }}
             />
             <RoleRow
               role="agent"
               title="Agen Komunitas"
               desc="Daftarkan pekerja baru dari kelurahan."
-              to={authed && role === "agent" ? "/agent" : "/login"}
+              to={authed && role === "agent" ? "/agent" : "/auth/login"}
               onPick={() => { if (!authed) setRole("agent"); }}
             />
           </div>

@@ -10,7 +10,7 @@ import { DEFAULT_LAT, DEFAULT_LNG, readUserPosition } from "@/lib/geo";
 import { formatIDR } from "@/lib/formatCurrency";
 import { useSessionStore } from "@/stores/useSessionStore";
 
-export const Route = createFileRoute("/consumer/worker/$id")({
+export const Route = createFileRoute("/consumers/worker/$id")({
   head: () => ({ meta: [{ title: "Pesan Jasa · KerjaDekat" }] }),
   component: BookServicePage,
   notFoundComponent: () => <NotFound />,
@@ -28,7 +28,7 @@ function NotFound() {
 }
 
 function BookServicePage() {
-  const { id } = useParams({ from: "/consumer/worker/$id" });
+  const { id } = useParams({ from: "/consumers/worker/$id" });
   const skillId = Number(id);
   const navigate = useNavigate();
   const accessToken = useSessionStore((s) => s.accessToken);
@@ -73,7 +73,7 @@ function BookServicePage() {
         setSubmitError(res.error ?? "Gagal membuat pesanan.");
         return;
       }
-      navigate({ to: "/consumer/order/$id", params: { id: res.data.ID } });
+      navigate({ to: "/consumers/order/$id", params: { id: res.data.ID } });
     },
     onError: (err) => {
       setSubmitError(err instanceof Error ? err.message : "Gagal membuat pesanan.");
@@ -102,7 +102,7 @@ function BookServicePage() {
 
       <div className="max-w-6xl mx-auto md:px-8 pt-4 pb-24 md:py-8">
         <div className="hidden md:block mb-6">
-          <Link to="/consumer" className="text-sm font-semibold text-mute hover:text-ink">
+          <Link to="/consumers" className="text-sm font-semibold text-mute hover:text-ink">
             ← Kembali ke beranda
           </Link>
         </div>

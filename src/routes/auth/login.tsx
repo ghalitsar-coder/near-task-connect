@@ -10,7 +10,7 @@ import { useSessionStore } from "@/stores/useSessionStore";
 import { startOAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/login")({
+export const Route = createFileRoute("/auth/login")({
   head: () => ({ meta: [{ title: "Masuk · KerjaDekat" }] }),
   component: LoginPage,
 });
@@ -46,9 +46,9 @@ function LoginPage() {
 
   useEffect(() => {
     if (!hydrated || !authed || !accessToken) return;
-    if (role === "agent" || role === "admin") navigate({ to: "/agent" });
-    else if (role === "worker") navigate({ to: "/worker" });
-    else navigate({ to: "/consumer" });
+    if (role === "agent" || role === "admin") navigate({ to: "/agents" });
+    else if (role === "worker") navigate({ to: "/workers" });
+    else navigate({ to: "/consumers" });
   }, [hydrated, authed, accessToken, role, navigate]);
 
   const otpMutation = useMutation({
@@ -60,7 +60,7 @@ function LoginPage() {
       }
       setError(null);
       setPhone(phone);
-      navigate({ to: "/otp" });
+      navigate({ to: "/auth/otp" });
     },
   });
 
