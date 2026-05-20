@@ -105,6 +105,8 @@ export function MapcnNearbyMap({
         }),
     [routes, selectedIndex],
   );
+  console.log(sortedRoutes);
+
 
   return (
     <div className="relative overflow-hidden rounded-[24px] border border-ink/10" style={{ height }}>
@@ -140,13 +142,12 @@ export function MapcnNearbyMap({
                 <button
                   type="button"
                   onClick={() => onSelectWorker?.(w.id)}
-                  className={`size-8 rounded-full border shadow-sm flex items-center justify-center text-[11px] font-semibold transition-transform ${
-                    isSelected
-                      ? "bg-ink text-[#ffffff] border-ink"
-                      : w.online
-                        ? "bg-[#9fe870] text-ink border-[#9fe870]"
-                        : "bg-[#ffffff] text-body border-ink/20"
-                  }`}
+                  className={`size-8 rounded-full border shadow-sm flex items-center justify-center text-[11px] font-semibold transition-transform ${isSelected
+                    ? "bg-ink text-[#ffffff] border-ink"
+                    : w.online
+                      ? "bg-[#9fe870] text-ink border-[#9fe870]"
+                      : "bg-[#ffffff] text-body border-ink/20"
+                    }`}
                 >
                   {w.name.split(" ")[1]?.[0] ?? w.name[0] ?? "?"}
                 </button>
@@ -181,11 +182,10 @@ export function MapcnNearbyMap({
                   <button
                     type="button"
                     onClick={() => onSelectWorker?.(w.id)}
-                    className={`flex-1 text-sm font-semibold rounded-[24px] px-3 py-2 border transition-colors ${
-                      isSelected
-                        ? "bg-ink text-[#ffffff] border-ink"
-                        : "bg-[#9fe870] text-ink border-[#9fe870] hover:bg-[#cdffad]"
-                    }`}
+                    className={`flex-1 text-sm font-semibold rounded-[24px] px-3 py-2 border transition-colors ${isSelected
+                      ? "bg-ink text-[#ffffff] border-ink"
+                      : "bg-[#9fe870] text-ink border-[#9fe870] hover:bg-[#cdffad]"
+                      }`}
                   >
                     {isSelected ? "Dipilih" : "Pilih mitra"}
                   </button>
@@ -213,17 +213,16 @@ export function MapcnNearbyMap({
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {routes.map((route, index) => {
             const isActive = index === selectedIndex;
-            const isFastest = index === 0;
+            const isFastest = index === selectedIndex && sortedRoutes[0]?.index === index;
             return (
               <button
                 key={`route-chip-${index}`}
                 type="button"
                 onClick={() => setSelectedIndex(index)}
-                className={`flex items-center gap-3 rounded-[24px] border px-3 py-2 text-xs font-semibold shadow-sm transition-colors ${
-                  isActive
-                    ? "bg-ink text-[#ffffff] border-ink"
-                    : "bg-[#ffffff] text-ink border-ink/10 hover:border-ink"
-                }`}
+                className={`flex items-center gap-3 rounded-[24px] border px-3 py-2 text-xs font-semibold shadow-sm transition-colors ${isActive
+                  ? "bg-ink text-[#ffffff] border-ink"
+                  : "bg-[#ffffff] text-ink border-ink/10 hover:border-ink"
+                  }`}
               >
                 <span className="inline-flex items-center gap-1.5">
                   <Clock className="size-3.5" />
@@ -233,11 +232,8 @@ export function MapcnNearbyMap({
                   <Route className="size-3.5" />
                   {formatDistance(route.distance)}
                 </span>
-                {isFastest && (
-                  <span className="rounded-full bg-[#e2f6d5] px-2 py-0.5 text-[10px] font-semibold text-[#054d28]">
-                    Tercepat
-                  </span>
-                )}
+
+
               </button>
             );
           })}

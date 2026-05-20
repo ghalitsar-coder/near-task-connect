@@ -21,13 +21,11 @@ export const getRouter = () => {
               accessToken: res.data.access_token,
               refreshToken: res.data.refresh_token,
             });
-            // Re-run the query or mutation to get actual data
-            if (queryOrMutation?.fetch) {
-              queryOrMutation.fetch(); // This retries the query in React Query
-            } else if (queryOrMutation?.execute) {
-               // Mutations are harder to retry automatically, but usually it's fine 
-               // because the user can click the button again.
-            }
+            // We don't call queryOrMutation.fetch() here because the queryKey usually depends
+            // on the accessToken state. Updating the Zustand store will trigger a re-render,
+            // updating the queryKey, and naturally triggering a refetch with the new token.
+            // Mutations are harder to retry automatically, but usually it's fine 
+            // because the user can click the button again.
           } else {
             signOut();
           }
