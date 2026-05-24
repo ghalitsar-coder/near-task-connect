@@ -15,6 +15,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as WorkersIndexRouteImport } from './routes/workers/index'
 import { Route as ConsumersIndexRouteImport } from './routes/consumers/index'
 import { Route as AgentsIndexRouteImport } from './routes/agents/index'
+import { Route as DashboardLoginRouteImport } from './routes/dashboard/login'
+import { Route as DashboardAgentRouteImport } from './routes/dashboard/_agent'
 import { Route as ConsumersServicesRouteImport } from './routes/consumers/services'
 import { Route as ConsumersProfileRouteImport } from './routes/consumers/profile'
 import { Route as ConsumersHistoryRouteImport } from './routes/consumers/history'
@@ -22,10 +24,17 @@ import { Route as AuthOtpRouteImport } from './routes/auth/otp'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthCompleteRouteImport } from './routes/auth/complete'
 import { Route as AgentsRegisterRouteImport } from './routes/agents/register'
+import { Route as DashboardAgentIndexRouteImport } from './routes/dashboard/_agent.index'
+import { Route as DashboardAgentTerritoryRouteImport } from './routes/dashboard/_agent.territory'
+import { Route as DashboardAgentReportsRouteImport } from './routes/dashboard/_agent.reports'
+import { Route as DashboardAgentAlertsRouteImport } from './routes/dashboard/_agent.alerts'
 import { Route as ConsumersWorkerIdRouteImport } from './routes/consumers/worker.$id'
 import { Route as ConsumersPaymentIdRouteImport } from './routes/consumers/payment.$id'
 import { Route as ConsumersOrderIdRouteImport } from './routes/consumers/order.$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as DashboardAgentWorkersIndexRouteImport } from './routes/dashboard/_agent.workers.index'
+import { Route as DashboardAgentWorkersNewRouteImport } from './routes/dashboard/_agent.workers.new'
+import { Route as DashboardAgentWorkersWorkerIdRouteImport } from './routes/dashboard/_agent.workers.$workerId'
 
 const ConsumersRouteRoute = ConsumersRouteRouteImport.update({
   id: '/consumers',
@@ -56,6 +65,16 @@ const AgentsIndexRoute = AgentsIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AgentsRouteRoute,
+} as any)
+const DashboardLoginRoute = DashboardLoginRouteImport.update({
+  id: '/dashboard/login',
+  path: '/dashboard/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardAgentRoute = DashboardAgentRouteImport.update({
+  id: '/dashboard/_agent',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ConsumersServicesRoute = ConsumersServicesRouteImport.update({
   id: '/services',
@@ -92,6 +111,26 @@ const AgentsRegisterRoute = AgentsRegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => AgentsRouteRoute,
 } as any)
+const DashboardAgentIndexRoute = DashboardAgentIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardAgentRoute,
+} as any)
+const DashboardAgentTerritoryRoute = DashboardAgentTerritoryRouteImport.update({
+  id: '/territory',
+  path: '/territory',
+  getParentRoute: () => DashboardAgentRoute,
+} as any)
+const DashboardAgentReportsRoute = DashboardAgentReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => DashboardAgentRoute,
+} as any)
+const DashboardAgentAlertsRoute = DashboardAgentAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => DashboardAgentRoute,
+} as any)
 const ConsumersWorkerIdRoute = ConsumersWorkerIdRouteImport.update({
   id: '/worker/$id',
   path: '/worker/$id',
@@ -112,6 +151,24 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardAgentWorkersIndexRoute =
+  DashboardAgentWorkersIndexRouteImport.update({
+    id: '/workers/',
+    path: '/workers/',
+    getParentRoute: () => DashboardAgentRoute,
+  } as any)
+const DashboardAgentWorkersNewRoute =
+  DashboardAgentWorkersNewRouteImport.update({
+    id: '/workers/new',
+    path: '/workers/new',
+    getParentRoute: () => DashboardAgentRoute,
+  } as any)
+const DashboardAgentWorkersWorkerIdRoute =
+  DashboardAgentWorkersWorkerIdRouteImport.update({
+    id: '/workers/$workerId',
+    path: '/workers/$workerId',
+    getParentRoute: () => DashboardAgentRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -124,6 +181,8 @@ export interface FileRoutesByFullPath {
   '/consumers/history': typeof ConsumersHistoryRoute
   '/consumers/profile': typeof ConsumersProfileRoute
   '/consumers/services': typeof ConsumersServicesRoute
+  '/dashboard': typeof DashboardAgentRouteWithChildren
+  '/dashboard/login': typeof DashboardLoginRoute
   '/agents/': typeof AgentsIndexRoute
   '/consumers/': typeof ConsumersIndexRoute
   '/workers/': typeof WorkersIndexRoute
@@ -131,6 +190,13 @@ export interface FileRoutesByFullPath {
   '/consumers/order/$id': typeof ConsumersOrderIdRoute
   '/consumers/payment/$id': typeof ConsumersPaymentIdRoute
   '/consumers/worker/$id': typeof ConsumersWorkerIdRoute
+  '/dashboard/alerts': typeof DashboardAgentAlertsRoute
+  '/dashboard/reports': typeof DashboardAgentReportsRoute
+  '/dashboard/territory': typeof DashboardAgentTerritoryRoute
+  '/dashboard/': typeof DashboardAgentIndexRoute
+  '/dashboard/workers/$workerId': typeof DashboardAgentWorkersWorkerIdRoute
+  '/dashboard/workers/new': typeof DashboardAgentWorkersNewRoute
+  '/dashboard/workers/': typeof DashboardAgentWorkersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -141,6 +207,7 @@ export interface FileRoutesByTo {
   '/consumers/history': typeof ConsumersHistoryRoute
   '/consumers/profile': typeof ConsumersProfileRoute
   '/consumers/services': typeof ConsumersServicesRoute
+  '/dashboard/login': typeof DashboardLoginRoute
   '/agents': typeof AgentsIndexRoute
   '/consumers': typeof ConsumersIndexRoute
   '/workers': typeof WorkersIndexRoute
@@ -148,6 +215,13 @@ export interface FileRoutesByTo {
   '/consumers/order/$id': typeof ConsumersOrderIdRoute
   '/consumers/payment/$id': typeof ConsumersPaymentIdRoute
   '/consumers/worker/$id': typeof ConsumersWorkerIdRoute
+  '/dashboard/alerts': typeof DashboardAgentAlertsRoute
+  '/dashboard/reports': typeof DashboardAgentReportsRoute
+  '/dashboard/territory': typeof DashboardAgentTerritoryRoute
+  '/dashboard': typeof DashboardAgentIndexRoute
+  '/dashboard/workers/$workerId': typeof DashboardAgentWorkersWorkerIdRoute
+  '/dashboard/workers/new': typeof DashboardAgentWorkersNewRoute
+  '/dashboard/workers': typeof DashboardAgentWorkersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -161,6 +235,8 @@ export interface FileRoutesById {
   '/consumers/history': typeof ConsumersHistoryRoute
   '/consumers/profile': typeof ConsumersProfileRoute
   '/consumers/services': typeof ConsumersServicesRoute
+  '/dashboard/_agent': typeof DashboardAgentRouteWithChildren
+  '/dashboard/login': typeof DashboardLoginRoute
   '/agents/': typeof AgentsIndexRoute
   '/consumers/': typeof ConsumersIndexRoute
   '/workers/': typeof WorkersIndexRoute
@@ -168,6 +244,13 @@ export interface FileRoutesById {
   '/consumers/order/$id': typeof ConsumersOrderIdRoute
   '/consumers/payment/$id': typeof ConsumersPaymentIdRoute
   '/consumers/worker/$id': typeof ConsumersWorkerIdRoute
+  '/dashboard/_agent/alerts': typeof DashboardAgentAlertsRoute
+  '/dashboard/_agent/reports': typeof DashboardAgentReportsRoute
+  '/dashboard/_agent/territory': typeof DashboardAgentTerritoryRoute
+  '/dashboard/_agent/': typeof DashboardAgentIndexRoute
+  '/dashboard/_agent/workers/$workerId': typeof DashboardAgentWorkersWorkerIdRoute
+  '/dashboard/_agent/workers/new': typeof DashboardAgentWorkersNewRoute
+  '/dashboard/_agent/workers/': typeof DashboardAgentWorkersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -182,6 +265,8 @@ export interface FileRouteTypes {
     | '/consumers/history'
     | '/consumers/profile'
     | '/consumers/services'
+    | '/dashboard'
+    | '/dashboard/login'
     | '/agents/'
     | '/consumers/'
     | '/workers/'
@@ -189,6 +274,13 @@ export interface FileRouteTypes {
     | '/consumers/order/$id'
     | '/consumers/payment/$id'
     | '/consumers/worker/$id'
+    | '/dashboard/alerts'
+    | '/dashboard/reports'
+    | '/dashboard/territory'
+    | '/dashboard/'
+    | '/dashboard/workers/$workerId'
+    | '/dashboard/workers/new'
+    | '/dashboard/workers/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -199,6 +291,7 @@ export interface FileRouteTypes {
     | '/consumers/history'
     | '/consumers/profile'
     | '/consumers/services'
+    | '/dashboard/login'
     | '/agents'
     | '/consumers'
     | '/workers'
@@ -206,6 +299,13 @@ export interface FileRouteTypes {
     | '/consumers/order/$id'
     | '/consumers/payment/$id'
     | '/consumers/worker/$id'
+    | '/dashboard/alerts'
+    | '/dashboard/reports'
+    | '/dashboard/territory'
+    | '/dashboard'
+    | '/dashboard/workers/$workerId'
+    | '/dashboard/workers/new'
+    | '/dashboard/workers'
   id:
     | '__root__'
     | '/'
@@ -218,6 +318,8 @@ export interface FileRouteTypes {
     | '/consumers/history'
     | '/consumers/profile'
     | '/consumers/services'
+    | '/dashboard/_agent'
+    | '/dashboard/login'
     | '/agents/'
     | '/consumers/'
     | '/workers/'
@@ -225,6 +327,13 @@ export interface FileRouteTypes {
     | '/consumers/order/$id'
     | '/consumers/payment/$id'
     | '/consumers/worker/$id'
+    | '/dashboard/_agent/alerts'
+    | '/dashboard/_agent/reports'
+    | '/dashboard/_agent/territory'
+    | '/dashboard/_agent/'
+    | '/dashboard/_agent/workers/$workerId'
+    | '/dashboard/_agent/workers/new'
+    | '/dashboard/_agent/workers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -234,6 +343,8 @@ export interface RootRouteChildren {
   AuthCompleteRoute: typeof AuthCompleteRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthOtpRoute: typeof AuthOtpRoute
+  DashboardAgentRoute: typeof DashboardAgentRouteWithChildren
+  DashboardLoginRoute: typeof DashboardLoginRoute
   WorkersIndexRoute: typeof WorkersIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -281,6 +392,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/agents/'
       preLoaderRoute: typeof AgentsIndexRouteImport
       parentRoute: typeof AgentsRouteRoute
+    }
+    '/dashboard/login': {
+      id: '/dashboard/login'
+      path: '/dashboard/login'
+      fullPath: '/dashboard/login'
+      preLoaderRoute: typeof DashboardLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/_agent': {
+      id: '/dashboard/_agent'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardAgentRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/consumers/services': {
       id: '/consumers/services'
@@ -331,6 +456,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentsRegisterRouteImport
       parentRoute: typeof AgentsRouteRoute
     }
+    '/dashboard/_agent/': {
+      id: '/dashboard/_agent/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardAgentIndexRouteImport
+      parentRoute: typeof DashboardAgentRoute
+    }
+    '/dashboard/_agent/territory': {
+      id: '/dashboard/_agent/territory'
+      path: '/territory'
+      fullPath: '/dashboard/territory'
+      preLoaderRoute: typeof DashboardAgentTerritoryRouteImport
+      parentRoute: typeof DashboardAgentRoute
+    }
+    '/dashboard/_agent/reports': {
+      id: '/dashboard/_agent/reports'
+      path: '/reports'
+      fullPath: '/dashboard/reports'
+      preLoaderRoute: typeof DashboardAgentReportsRouteImport
+      parentRoute: typeof DashboardAgentRoute
+    }
+    '/dashboard/_agent/alerts': {
+      id: '/dashboard/_agent/alerts'
+      path: '/alerts'
+      fullPath: '/dashboard/alerts'
+      preLoaderRoute: typeof DashboardAgentAlertsRouteImport
+      parentRoute: typeof DashboardAgentRoute
+    }
     '/consumers/worker/$id': {
       id: '/consumers/worker/$id'
       path: '/worker/$id'
@@ -358,6 +511,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/_agent/workers/': {
+      id: '/dashboard/_agent/workers/'
+      path: '/workers'
+      fullPath: '/dashboard/workers/'
+      preLoaderRoute: typeof DashboardAgentWorkersIndexRouteImport
+      parentRoute: typeof DashboardAgentRoute
+    }
+    '/dashboard/_agent/workers/new': {
+      id: '/dashboard/_agent/workers/new'
+      path: '/workers/new'
+      fullPath: '/dashboard/workers/new'
+      preLoaderRoute: typeof DashboardAgentWorkersNewRouteImport
+      parentRoute: typeof DashboardAgentRoute
+    }
+    '/dashboard/_agent/workers/$workerId': {
+      id: '/dashboard/_agent/workers/$workerId'
+      path: '/workers/$workerId'
+      fullPath: '/dashboard/workers/$workerId'
+      preLoaderRoute: typeof DashboardAgentWorkersWorkerIdRouteImport
+      parentRoute: typeof DashboardAgentRoute
     }
   }
 }
@@ -400,6 +574,30 @@ const ConsumersRouteRouteWithChildren = ConsumersRouteRoute._addFileChildren(
   ConsumersRouteRouteChildren,
 )
 
+interface DashboardAgentRouteChildren {
+  DashboardAgentAlertsRoute: typeof DashboardAgentAlertsRoute
+  DashboardAgentReportsRoute: typeof DashboardAgentReportsRoute
+  DashboardAgentTerritoryRoute: typeof DashboardAgentTerritoryRoute
+  DashboardAgentIndexRoute: typeof DashboardAgentIndexRoute
+  DashboardAgentWorkersWorkerIdRoute: typeof DashboardAgentWorkersWorkerIdRoute
+  DashboardAgentWorkersNewRoute: typeof DashboardAgentWorkersNewRoute
+  DashboardAgentWorkersIndexRoute: typeof DashboardAgentWorkersIndexRoute
+}
+
+const DashboardAgentRouteChildren: DashboardAgentRouteChildren = {
+  DashboardAgentAlertsRoute: DashboardAgentAlertsRoute,
+  DashboardAgentReportsRoute: DashboardAgentReportsRoute,
+  DashboardAgentTerritoryRoute: DashboardAgentTerritoryRoute,
+  DashboardAgentIndexRoute: DashboardAgentIndexRoute,
+  DashboardAgentWorkersWorkerIdRoute: DashboardAgentWorkersWorkerIdRoute,
+  DashboardAgentWorkersNewRoute: DashboardAgentWorkersNewRoute,
+  DashboardAgentWorkersIndexRoute: DashboardAgentWorkersIndexRoute,
+}
+
+const DashboardAgentRouteWithChildren = DashboardAgentRoute._addFileChildren(
+  DashboardAgentRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AgentsRouteRoute: AgentsRouteRouteWithChildren,
@@ -407,6 +605,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCompleteRoute: AuthCompleteRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthOtpRoute: AuthOtpRoute,
+  DashboardAgentRoute: DashboardAgentRouteWithChildren,
+  DashboardLoginRoute: DashboardLoginRoute,
   WorkersIndexRoute: WorkersIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }

@@ -37,6 +37,21 @@ export type NearbyWorker = {
   skills: { id: number; name: string }[];
 };
 
+export type AgentWorkerSummary = {
+  user_id: string;
+  full_name: string;
+  phone_number?: string | null;
+  status: string;
+  availability: string;
+  kelurahan: string;
+  rt_rw?: string | null;
+  rating_avg: number;
+  rating_count: number;
+  created_at: string;
+  verified_at?: string | null;
+  skills: string[];
+};
+
 export type Kelurahan = {
   ID: number;
   Name: string;

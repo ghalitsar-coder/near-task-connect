@@ -158,9 +158,8 @@ function BookServicePage() {
                     key={m.id}
                     type="button"
                     onClick={() => setMethod(m.id)}
-                    className={`rounded-[12px] border px-3 py-2 text-sm font-semibold ${
-                      method === m.id ? "border-ink bg-[#e2f6d5]" : "border-ink/15 bg-[#ffffff]"
-                    }`}
+                    className={`rounded-[12px] border px-3 py-2 text-sm font-semibold ${method === m.id ? "border-ink bg-[#e2f6d5]" : "border-ink/15 bg-[#ffffff]"
+                      }`}
                   >
                     {m.label}
                   </button>

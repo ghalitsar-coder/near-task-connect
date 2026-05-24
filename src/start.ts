@@ -17,6 +17,18 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
   }
 });
 
+const csrfMiddleware = createMiddleware().server(async ({ next, context }) => {
+  if (context.handlerType === "serverFn") {
+    // CSRF protection for server functions
+    const origin = context.request.headers.get("origin");
+    const host = context.request.headers.get("host");
+    if (origin && host && new URL(origin).host !== host) {
+      return new Response("Forbidden", { status: 403 });
+    }
+  }
+  return next();
+});
+
 export const startInstance = createStart(() => ({
-  requestMiddleware: [errorMiddleware],
+  requestMiddleware: [errorMiddleware, csrfMiddleware],
 }));

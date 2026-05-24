@@ -34,6 +34,9 @@ const proxy = (target: string) => ({
 export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
+    serverFns: {
+      disableCsrfMiddlewareWarning: true,
+    },
   },
   optimizeDeps: {
     include: ['maplibre-gl'] // Tambahkan baris ini

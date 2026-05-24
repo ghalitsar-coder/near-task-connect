@@ -49,7 +49,7 @@ function OtpPage() {
       return res.data;
     },
     onSuccess: () => {
-      if (role === "agent" || role === "admin") navigate({ to: "/agents" });
+      if (role === "agent" || role === "admin") navigate({ to: "/dashboard" });
       else if (role === "worker") navigate({ to: "/workers" });
       else navigate({ to: "/consumers" });
     },

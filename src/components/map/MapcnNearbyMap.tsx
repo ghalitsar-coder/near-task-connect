@@ -14,6 +14,14 @@ interface Props {
   onSelectWorker?: (id: string) => void;
   showUser?: boolean;
   zoom?: number;
+  kelurahans?: Array<{
+    ID: number;
+    Name: string;
+    Kecamatan?: string;
+    Centroid?: { Lat: number; Lng: number; Valid: boolean };
+  }>;
+  selectedKelurahanId?: number | null;
+  onKelurahanSelect?: (id: number) => void;
 }
 
 export function MapcnNearbyMap({
@@ -24,6 +32,9 @@ export function MapcnNearbyMap({
   onSelectWorker,
   showUser = true,
   zoom = 13,
+  kelurahans = [],
+  selectedKelurahanId,
+  onKelurahanSelect,
 }: Props) {
   const [lat, lng] = center;
   const mapCenter: [number, number] = [lng, lat];
@@ -198,6 +209,49 @@ export function MapcnNearbyMap({
                       Offline
                     </span>
                   )}
+                </div>
+              </MarkerPopup>
+            </MapMarker>
+          );
+        })}
+        {kelurahans.map((kel) => {
+          if (!kel.Centroid?.Valid) return null;
+          const isSelected = selectedKelurahanId === kel.ID;
+          return (
+            <MapMarker key={`kel-${kel.ID}`} longitude={kel.Centroid.Lng} latitude={kel.Centroid.Lat}>
+              <MarkerContent>
+                <button
+                  type="button"
+                  onClick={() => onKelurahanSelect?.(kel.ID)}
+                  className={`size-8 rounded-full border-2 shadow-lg flex items-center justify-center transition-all hover:scale-110 ${
+                    isSelected
+                      ? "bg-green-500 border-white"
+                      : "bg-white border-gray-300"
+                  }`}
+                >
+                  {isSelected && <div className="size-2 rounded-full bg-white" />}
+                </button>
+                <MarkerLabel position="bottom">{kel.Name}</MarkerLabel>
+              </MarkerContent>
+              <MarkerPopup className="w-56 rounded-[24px] border border-ink/10 bg-[#ffffff] p-3 shadow-lg">
+                <div className="space-y-2">
+                  <div>
+                    <div className="font-display font-black text-sm">{kel.Name}</div>
+                    {kel.Kecamatan && (
+                      <div className="text-xs text-muted-foreground">{kel.Kecamatan}</div>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onKelurahanSelect?.(kel.ID)}
+                    className={`w-full text-sm font-semibold rounded-[24px] px-3 py-2 border transition-colors ${
+                      isSelected
+                        ? "bg-green-500 text-white border-green-500"
+                        : "bg-white text-ink border-ink/20 hover:border-ink"
+                    }`}
+                  >
+                    {isSelected ? "Terpilih" : "Pilih Kelurahan"}
+                  </button>
                 </div>
               </MarkerPopup>
             </MapMarker>

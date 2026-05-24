@@ -3,6 +3,7 @@ import { authMiddleware } from "@/lib/auth/middleware";
 import { serviceBase } from "@/lib/api/config";
 import type {
   ApiResult,
+  AgentWorkerSummary,
   Kelurahan,
   RegisterWorkerPayload,
   RegisterWorkerResult,
@@ -137,12 +138,54 @@ async function fetchAgentTerritories(accessToken: string): Promise<ApiResult<{ i
   }
 }
 
+async function fetchAgentWorkers(accessToken: string): Promise<ApiResult<{ items: AgentWorkerSummary[] }>> {
+  try {
+    if (!accessToken) {
+      return { ok: false, data: { items: [] }, error: "Missing access token" };
+    }
+    const res = await fetch(`${apiBase}/agent/workers`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        "X-Request-ID": crypto.randomUUID(),
+      },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) {
+      let errBody: { error?: string } | undefined;
+      try {
+        errBody = (await res.json()) as { error?: string };
+      } catch {
+        /* ignore */
+      }
+      return { ok: false, data: { items: [] }, error: mapHttpError(res.status, errBody), status: res.status };
+    }
+    const body = (await res.json()) as { items?: AgentWorkerSummary[] };
+    return { ok: true, data: { items: Array.isArray(body?.items) ? body.items : [] } };
+  } catch (error) {
+    return {
+      ok: false,
+      data: { items: [] },
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
 export const getAgentTerritoriesFn = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context, data }) => {
     const accessToken =
       (data as { accessToken?: string } | undefined)?.accessToken ?? context?.accessToken ?? "";
     return fetchAgentTerritories(accessToken);
+  });
+
+export const getAgentWorkersFn = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .handler(async ({ context, data }) => {
+    const accessToken =
+      (data as { accessToken?: string } | undefined)?.accessToken ?? context?.accessToken ?? "";
+    return fetchAgentWorkers(accessToken);
   });
 
 export const getSkillCategoriesFn = createServerFn({ method: "GET" })
@@ -163,4 +206,46 @@ export const registerWorkerFn = createServerFn({ method: "POST" })
       return { ok: false, data: null, error: "Missing registration payload" };
     }
     return postRegisterWorker(payload, accessToken);
+  });
+
+async function fetchKelurahans(accessToken: string): Promise<ApiResult<{ items: Kelurahan[] }>> {
+  try {
+    if (!accessToken) {
+      return { ok: false, data: { items: [] }, error: "Missing access token" };
+    }
+    const res = await fetch(`${apiBase}/kelurahans`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        "X-Request-ID": crypto.randomUUID(),
+      },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) {
+      let errBody: { error?: string } | undefined;
+      try {
+        errBody = (await res.json()) as { error?: string };
+      } catch {
+        /* ignore */
+      }
+      return { ok: false, data: { items: [] }, error: mapHttpError(res.status, errBody) };
+    }
+    const body = (await res.json()) as { items?: Kelurahan[] };
+    return { ok: true, data: { items: Array.isArray(body?.items) ? body.items : [] } };
+  } catch (error) {
+    return {
+      ok: false,
+      data: { items: [] },
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+export const getKelurahansFn = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .handler(async ({ context, data }) => {
+    const accessToken =
+      (data as { accessToken?: string } | undefined)?.accessToken ?? context?.accessToken ?? "";
+    return fetchKelurahans(accessToken);
   });
