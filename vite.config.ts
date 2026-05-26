@@ -32,30 +32,19 @@ const proxy = (target: string) => ({
 });
 
 export default defineConfig({
+  cloudflare: false,
   tanstackStart: {
-    server: { entry: "server" },
+    ssr: false,
     serverFns: {
       disableCsrfMiddlewareWarning: true,
     },
   },
   optimizeDeps: {
-    include: ['maplibre-gl'] // Tambahkan baris ini
+    include: ['maplibre-gl']
   },
   vite: {
     server: {
-      // proxy: {
-      //   "/api/flight-ops": proxy("http://localhost:8003"),
-      //   "/api/inventory": proxy("http://localhost:8002"),
-      //   "/api/passenger": proxy("http://localhost:8001"),
-      //   "/api/notification": proxy("http://localhost:8004"),
-      //   "/api/booking": proxy("http://localhost:8005"),
-      //   "/api/pricing": proxy("http://localhost:8006"),
-      //   "/api/payment": proxy("http://localhost:8007"),
-      //   "/api/loyalty": proxy("http://localhost:8008"),
-      //   "/api/crew": proxy("http://localhost:8009"),
-      //   "/api/maintenance": proxy("http://localhost:8010"),
-      // },
-      port:5173
+      port: 5173
     },
   },
 });
