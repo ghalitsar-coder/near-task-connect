@@ -46,5 +46,8 @@ export default defineConfig({
     server: {
       port: 5173
     },
-  },
+    preview: {
+      allowedHosts: ['asin-monitor-fans-hero.trycloudflare.com', 'localhost']
+    }
+  }
 });
