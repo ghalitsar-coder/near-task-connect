@@ -287,6 +287,45 @@
   .display-xl { font-family: var(--font-display); font-weight: 900; font-size: clamp(36px, 6vw, 64px); line-height: 0.95; letter-spacing: -0.02em; }
   .display-md { font-family: var(--font-display); font-weight: 900; font-size: 32px; line-height: 1.05; letter-spacing: -0.01em; }
   .display-sm { font-family: var(--font-sans); font-weight: 600; font-size: 24px; line-height: 1.2; letter-spacing: -0.01em; }
+
+  .hero-band {
+    background-color: var(--canvas-soft);
+    color: var(--ink);
+    padding: 48px 24px;
+  }
+
+  .hero-band-dark {
+    background-color: var(--ink);
+    color: var(--primary);
+    padding: 48px 24px;
+  }
+
+  .content-band {
+    background-color: var(--canvas);
+    color: var(--ink);
+    padding: 48px 24px;
+  }
+
+  .currency-converter-card {
+    background-color: var(--canvas);
+    color: var(--ink);
+    border: 1px solid var(--ink);
+    padding: 24px;
+    border-radius: var(--radius-xl);
+  }
+
+  .card-feature-sage {
+    background-color: var(--canvas-soft);
+    color: var(--ink);
+    padding: 24px;
+    border-radius: var(--radius-xl);
+  }
+
+  .typography-caption {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 400;
+  }
 }
 
 /* Leaflet container needs explicit size */

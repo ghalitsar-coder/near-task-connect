@@ -5,16 +5,16 @@ import { useSessionStore } from "@/stores/useSessionStore";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "KerjaDekat — Jasa terpercaya di sekitarmu" },
+      { title: "KerjaDekat — Jasa harian andal dari tetangga sekitar" },
       {
         name: "description",
         content:
-          "Pesan tukang ledeng, listrik, kebersihan dan jasa harian dari pekerja terverifikasi di radius 5 km. Bayar admin Rp2.000, upah jasa tunai langsung.",
+          "Panggil tukang ledeng, listrik, dan jasa harian langsung dari pekerja terverifikasi di sekitarmu. Bayar admin Rp2.000, sisanya tunai langsung ke pekerja.",
       },
-      { property: "og:title", content: "KerjaDekat — Jasa terpercaya di sekitarmu" },
+      { property: "og:title", content: "KerjaDekat — Jasa harian andal dari tetangga sekitar" },
       {
         property: "og:description",
-        content: "Platform micro-tasking berbasis komunitas untuk kelurahan padat penduduk.",
+        content: "Platform jasa harian terpercaya. Harga jujur, pekerja verifikasi RT.",
       },
     ],
   }),
@@ -29,103 +29,123 @@ function Landing() {
     <main className="min-h-screen bg-canvas-soft">
       {/* nav */}
       <header className="flex items-center justify-between px-6 py-5 max-w-6xl mx-auto">
-        <span className="font-display font-black text-2xl">
+        <span className="font-display font-black text-2xl text-ink">
           kerjadekat<span className="inline-block ml-1 size-2.5 rounded-full bg-primary align-middle" />
         </span>
-        <Link to={authed ? dashboardUrl : "/auth/login"} className="btn-tertiary !py-2 !px-4 text-sm">
+        <Link to={authed ? dashboardUrl : "/auth/login"} className="btn-tertiary">
           {authed ? "Dashboard" : "Masuk"}
         </Link>
       </header>
 
       {/* hero */}
-      <section className="px-6 pt-6 pb-16 max-w-6xl mx-auto grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center">
+      <section className="hero-band max-w-6xl mx-auto grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center">
         <div>
-          <span className="badge-positive">
-            <span className="size-1.5 rounded-full bg-positive" />
+          <span className="badge-positive inline-flex items-center gap-2">
+            <span className="size-2 rounded-full bg-positive" />
             Beta pilot · Tebet, Jakarta Selatan
           </span>
-          <h1 className="display-mega mt-4">
+          <h1 className="display-mega mt-6 text-ink leading-relaxed">
             Jasa harian,<br />
-            <span className="bg-primary px-2 -mx-2 rounded-lg">dari tetangga.</span>
+            <span className="bg-primary px-2 -mx-2 rounded-xl">dari tetangga.</span>
           </h1>
-          <p className="mt-6 text-body text-lg max-w-md">
-            Tukang ledeng, listrik, kebersihan, dan jasa harian lainnya — terverifikasi RT,
-            datang dalam hitungan menit. Bayar admin Rp2.000, upah jasa tunai langsung.
+          <p className="mt-8 text-body text-xl max-w-lg leading-relaxed">
+            Butuh tukang ledeng, listrik, atau bersih-bersih dadakan? Panggil pekerja terverifikasi RT di sekitarmu. Datang dalam hitungan menit. Bayar admin Rp2.000, upah jasa tunai ke pekerja.
           </p>
 
-          <div className="mt-8 flex flex-col sm:flex-row gap-3">
+          <div className="mt-10 flex flex-col sm:flex-row gap-4">
             <Link to={authed && role === "consumer" ? "/consumers" : "/auth/login"} onClick={() => { if(!authed) setRole("consumer") }} className="btn-primary">
-              Pesan jasa sekarang <ArrowRight size={18} />
+              Pesan jasa sekarang
             </Link>
             <Link to={authed && role === "worker" ? "/workers" : "/auth/login"} onClick={() => { if(!authed) setRole("worker") }} className="btn-tertiary">
-              Saya pekerja
+              Daftar sebagai pekerja
             </Link>
           </div>
 
-          <div className="mt-10 grid grid-cols-3 gap-6 max-w-md">
+          <div className="mt-12 grid grid-cols-3 gap-4 max-w-md">
             {[
-              { icon: MapPin, label: "Radius 5 km" },
-              { icon: ShieldCheck, label: "Verifikasi RT" },
-              { icon: Zap, label: "< 3 menit match" },
-            ].map(({ icon: Icon, label }) => (
-              <div key={label} className="text-sm">
-                <Icon size={18} className="text-ink-deep" />
-                <div className="mt-1 font-semibold">{label}</div>
+              { icon: MapPin, label: "Radius 5 km", desc: "Pekerja terdekat" },
+              { icon: ShieldCheck, label: "Verifikasi RT", desc: "Aman & terpercaya" },
+              { icon: Zap, label: "< 3 menit", desc: "Langsung respons" },
+            ].map(({ icon: Icon, label, desc }) => (
+              <div key={label} className="card-sage text-center">
+                <Icon size={24} className="text-ink mx-auto" />
+                <div className="mt-3 font-display font-black text-sm text-ink">{label}</div>
+                <div className="mt-1 text-body text-xs">{desc}</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* hero card — role selector */}
-        <div className="card-content border border-ink/90 lg:p-8">
-          <h2 className="font-display font-black text-xl">Coba demo MVP</h2>
-          <p className="text-sm text-body mt-1">Pilih peran untuk masuk ke alur yang sesuai.</p>
+        <div className="currency-converter-card">
+          <h2 className="display-md text-ink">Coba demo MVP</h2>
+          <p className="text-body text-lg mt-3 mb-8">Pilih peran untuk memulai simulasi transaksi.</p>
 
-          <div className="mt-6 space-y-3">
+          <div className="space-y-4">
             <RoleRow
               role="consumer"
-              title="Konsumen"
-              desc="Cari pekerja terdekat, pesan & bayar admin."
+              title="Sebagai Konsumen"
+              desc="Cari pekerja terdekat, pesan jasa, & bayar admin."
               to={authed && role === "consumer" ? "/consumers" : "/auth/login"}
               onPick={() => { if (!authed) setRole("consumer"); }}
             />
             <RoleRow
               role="worker"
-              title="Pekerja Mitra"
-              desc="Terima tawaran order di sekitar lokasi."
+              title="Sebagai Pekerja Mitra"
+              desc="Terima order masuk di sekitar lokasimu."
               to={authed && role === "worker" ? "/workers" : "/auth/login"}
               onPick={() => { if (!authed) setRole("worker"); }}
             />
             <RoleRow
               role="agent"
-              title="Agen Komunitas"
-              desc="Daftarkan pekerja baru dari kelurahan."
+              title="Sebagai Agen Komunitas"
+              desc="Daftarkan pekerja baru dari kelurahan setempat."
               to={authed && role === "agent" ? "/agent" : "/auth/login"}
               onPick={() => { if (!authed) setRole("agent"); }}
             />
           </div>
 
-          <p className="text-xs text-mute mt-6">
+          <p className="typography-caption text-mute mt-8">
             OTP dikirim via SMS mock — cek log backend (<code className="bg-canvas-soft px-1.5 py-0.5 rounded">sms_mock: OTP</code>).
             Untuk agen, gunakan nomor yang sudah terdaftar di seed data.
           </p>
         </div>
       </section>
 
-      {/* dark band */}
-      <section className="bg-ink text-canvas-soft py-16 px-6">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
-          {[
-            { n: "1", t: "Buka aplikasi", d: "Izinkan lokasi, lihat pekerja online di radius 5 km." },
-            { n: "2", t: "Pilih & pesan", d: "Lihat profil, rating, dan jarak. Tahan admin Rp2.000." },
-            { n: "3", t: "Selesaikan", d: "Pekerja datang, kerjakan, bayar upah tunai. Konfirmasi di app." },
-          ].map((s) => (
-            <div key={s.n} className="card-dark">
-              <div className="text-primary font-display font-black text-5xl">0{s.n}</div>
-              <div className="font-display font-black text-xl mt-4 text-canvas">{s.t}</div>
-              <p className="text-canvas-soft/80 mt-2 text-sm">{s.d}</p>
-            </div>
-          ))}
+      {/* content band */}
+      <section className="content-band">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="display-xl text-ink text-center mb-16">
+            Cara kerjanya sederhana
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { n: "1", t: "Buka aplikasi", d: "Izinkan lokasi, lihat pekerja yang sedang online di radius 5 km sekitarmu." },
+              { n: "2", t: "Pilih & pesan", d: "Lihat profil, rating, dan jarak pekerja. Tahan biaya admin Rp2.000." },
+              { n: "3", t: "Pekerjaan selesai", d: "Pekerja datang, kerjakan tugas, lalu kamu bayar upah tunai langsung." },
+            ].map((s) => (
+              <div key={s.n} className="card-sage h-full flex flex-col relative overflow-hidden">
+                <div className="display-mega text-primary/20 -mt-4 -ml-3 mb-2 select-none">0{s.n}</div>
+                <div className="display-md text-ink mb-3">{s.t}</div>
+                <p className="text-body text-base flex-1 leading-relaxed">{s.d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* dark footer band CTA */}
+      <section className="hero-band-dark">
+        <div className="max-w-4xl mx-auto text-center py-16">
+          <h2 className="display-xl text-primary mb-6">
+            Gabung jadi tetangga baik
+          </h2>
+          <p className="text-canvas-soft/80 text-xl mb-10 max-w-2xl mx-auto leading-relaxed">
+            Bantu hidupkan ekonomi lokal dengan saling memberdayakan keahlian tetangga sekitar.
+          </p>
+          <Link to={authed && role === "consumer" ? "/consumers" : "/auth/login"} onClick={() => { if(!authed) setRole("consumer") }} className="btn-primary mx-auto inline-flex">
+            Mulai pakai KerjaDekat
+          </Link>
         </div>
       </section>
     </main>
@@ -148,13 +168,15 @@ function RoleRow({
     <Link
       to={to}
       onClick={onPick}
-      className="flex items-center justify-between gap-3 card-sage hover:bg-primary-pale transition-colors !py-4"
+      className="flex items-center justify-between gap-4 p-4 rounded-xl bg-canvas hover:bg-canvas-soft border border-ink/10 transition-all duration-200 group"
     >
-      <div>
-        <div className="font-display font-black">{title}</div>
-        <div className="text-sm text-body">{desc}</div>
+      <div className="flex-1 min-w-0">
+        <div className="font-display font-black text-lg text-ink">{title}</div>
+        <div className="text-sm text-body mt-0.5">{desc}</div>
       </div>
-      <ArrowRight size={18} />
+      <div className="bg-canvas-soft p-3 rounded-full group-hover:bg-primary-pale transition-colors shrink-0">
+        <ArrowRight size={20} className="text-ink group-hover:text-primary transition-colors" />
+      </div>
     </Link>
   );
 }
