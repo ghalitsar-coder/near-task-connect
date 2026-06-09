@@ -45,7 +45,7 @@ function Landing() {
             Beta pilot · Tebet, Jakarta Selatan
           </span>
           <h1 className="display-mega mt-6 text-ink leading-relaxed">
-            Jasa harian,<br />
+            Jasa Harian,<br />
             <span className="bg-primary px-2 -mx-2 rounded-xl">dari tetangga.</span>
           </h1>
           <p className="mt-8 text-body text-xl max-w-lg leading-relaxed">
