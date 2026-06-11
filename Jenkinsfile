@@ -28,6 +28,7 @@ pipeline {
                     // Pastikan kamu punya credentials 'github-credentials' di Jenkins
                     withCredentials([usernamePassword(credentialsId: 'github-credentials', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
                         sh """
+                        rm -rf gitops_repo
                         git clone https://${GIT_USER}:${GIT_PASS}@github.com/ghalitsar-coder/kerjadekat-gitops.git gitops_repo
                         cd gitops_repo
                         
