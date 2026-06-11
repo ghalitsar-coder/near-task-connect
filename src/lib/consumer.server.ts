@@ -158,3 +158,28 @@ export const cancelConsumerOrderFn = createServerFn({ method: "POST" })
       body: JSON.stringify({ reason: input?.reason }),
     });
   });
+
+export const confirmPaymentOrderFn = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .handler(async ({ context, data }: { context: { accessToken?: string }; data?: AuthInput & { orderId?: string } }) => {
+    const input = data;
+    const accessToken = input?.accessToken ?? context?.accessToken ?? "";
+    const orderId = input?.orderId ?? "";
+    if (!orderId) return { ok: false, data: null as unknown as ApiOrder, error: "Missing order id" };
+    return authFetch<ApiOrder>(`/orders/${orderId}/confirm-payment`, accessToken, { method: "POST" });
+  });
+
+export const rateConsumerOrderFn = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .handler(async ({ context, data }: { context: { accessToken?: string }; data?: AuthInput & { orderId?: string; score?: number; comment?: string } }) => {
+    const input = data;
+    const accessToken = input?.accessToken ?? context?.accessToken ?? "";
+    const orderId = input?.orderId ?? "";
+    if (!orderId) return { ok: false, data: null as unknown as ApiOrder, error: "Missing order id" };
+    const score = input?.score;
+    if (score == null || score < 1 || score > 5) return { ok: false, data: null as unknown as ApiOrder, error: "Invalid score" };
+    return authFetch<ApiOrder>(`/orders/${orderId}/rate`, accessToken, {
+      method: "POST",
+      body: JSON.stringify({ score, comment: input?.comment }),
+    });
+  });

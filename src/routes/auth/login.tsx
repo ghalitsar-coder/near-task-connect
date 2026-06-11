@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, Smartphone } from "lucide-react";
 import { TopNav } from "@/components/shell/TopNav";
 import { WiseButton } from "@/components/brand/WiseButton";
-import { requestOtpFn, loginEmailFn, registerEmailFn } from "@/lib/auth.server";
+import { requestOtpFn, loginEmailFn, registerEmailFn, loginPhoneFn } from "@/lib/auth.server";
 import { useSessionHydrated } from "@/lib/auth/hydration";
 import { useSessionStore } from "@/stores/useSessionStore";
 import { startOAuth } from "@/hooks/use-auth";
@@ -27,7 +27,7 @@ function LoginPage() {
   const hydrated = useSessionHydrated();
   const { setPhone, role, authed, accessToken } = useSessionStore();
   
-  const [isRegistering, setIsRegistering] = useState(false);
+  const [mode, setMode] = useState<"email" | "register" | "phone">("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -97,15 +97,32 @@ function LoginPage() {
     },
   });
 
+  const loginPhoneMutation = useMutation({
+    mutationFn: () => loginPhoneFn({ data: { phone_number: phoneInput } }),
+    onSuccess: (res) => {
+      if (!res.ok || !res.data) {
+        setError(res.error ?? "Nomor HP tidak ditemukan.");
+        return;
+      }
+      otpMutation.mutate(res.data.phone_number);
+    },
+  });
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (isRegistering) {
+    if (mode === "register") {
       if (!email || !password || !name || !phoneInput) {
         setError("Semua kolom harus diisi.");
         return;
       }
       registerMutation.mutate();
+    } else if (mode === "phone") {
+      if (!phoneInput) {
+        setError("Nomor HP harus diisi.");
+        return;
+      }
+      loginPhoneMutation.mutate();
     } else {
       if (!email || !password) {
         setError("Email dan password harus diisi.");
@@ -118,15 +135,17 @@ function LoginPage() {
   const roleLabel =
     role === "consumer" ? "konsumen" : role === "worker" ? "pekerja mitra" : "agen komunitas";
   
-  const isPending = registerMutation.isPending || loginMutation.isPending || otpMutation.isPending;
+  const isPending = registerMutation.isPending || loginMutation.isPending || otpMutation.isPending || loginPhoneMutation.isPending;
 
   return (
     <div className="min-h-screen bg-[#e8ebe6]">
       <TopNav backTo="/" />
       <main className="max-w-md mx-auto px-6 pt-6 pb-20">
-        <h1 className="display-xl">{isRegistering ? "Daftar" : "Masuk"}</h1>
+        <h1 className="display-xl">{mode === "register" ? "Daftar" : "Masuk"}</h1>
         <p className="text-body mt-2">
-          Lanjutkan sebagai <strong>{roleLabel}</strong>.
+          {mode === "phone"
+            ? "Masuk pakai nomor HP."
+            : `Lanjutkan sebagai ${roleLabel}.`}
         </p>
 
         {error && (
@@ -137,7 +156,7 @@ function LoginPage() {
         )}
 
         <form onSubmit={submit} className="mt-8 space-y-4">
-          {isRegistering && (
+          {mode === "register" && (
             <>
               <div>
                 <label className="block text-sm font-semibold mb-2">Nama Lengkap</label>
@@ -149,43 +168,50 @@ function LoginPage() {
                   className="text-input w-full bg-[#ffffff]"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-semibold mb-2">Nomor WhatsApp / HP</label>
-                <div className="flex gap-2">
-                  <div className="text-input !w-20 text-center font-semibold bg-[#ffffff]">+62</div>
-                  <input
-                    inputMode="numeric"
-                    placeholder="8123456789"
-                    value={phoneInput}
-                    onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, ""))}
-                    className="text-input flex-1 bg-[#ffffff]"
-                  />
-                </div>
-              </div>
             </>
           )}
 
-          <div>
-            <label className="block text-sm font-semibold mb-2">Email</label>
-            <input
-              type="email"
-              autoFocus
-              placeholder="nama@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="text-input w-full bg-[#ffffff]"
-            />
-          </div>
+          {mode !== "phone" ? (
+            <>
+              <div>
+                <label className="block text-sm font-semibold mb-2">Email</label>
+                <input
+                  type="email"
+                  autoFocus
+                  placeholder="nama@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="text-input w-full bg-[#ffffff]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-2">Password</label>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="text-input w-full bg-[#ffffff]"
+                />
+              </div>
+            </>
+          ) : null}
 
           <div>
-            <label className="block text-sm font-semibold mb-2">Password</label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="text-input w-full bg-[#ffffff]"
-            />
+            <label className="block text-sm font-semibold mb-2">
+              {mode === "phone" ? "Nomor WhatsApp / HP" : "Nomor WhatsApp / HP (untuk OTP)"}
+            </label>
+            <div className="flex gap-2">
+              <div className="text-input !w-20 text-center font-semibold bg-[#ffffff]">+62</div>
+              <input
+                inputMode="numeric"
+                placeholder="8123456789"
+                value={phoneInput}
+                onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, ""))}
+                className="text-input flex-1 bg-[#ffffff]"
+              />
+            </div>
           </div>
 
           <WiseButton id="login-submit-btn" type="submit" full disabled={isPending}>
@@ -193,28 +219,43 @@ function LoginPage() {
               <span className="inline-flex items-center gap-2">
                 <Loader2 size={16} className="animate-spin" /> Memproses…
               </span>
-            ) : isRegistering ? (
+            ) : mode === "register" ? (
               "Daftar & Kirim OTP"
+            ) : mode === "phone" ? (
+              "Kirim OTP"
             ) : (
               "Masuk & Kirim OTP"
             )}
           </WiseButton>
           
           <div className="text-center text-sm font-medium mt-4">
-            {isRegistering ? (
+            {mode === "register" ? (
               <p>
                 Sudah punya akun?{" "}
-                <button type="button" onClick={() => setIsRegistering(false)} className="text-primary hover:underline">
+                <button type="button" onClick={() => setMode("email")} className="text-primary hover:underline">
                   Masuk di sini
                 </button>
               </p>
-            ) : (
+            ) : mode === "phone" ? (
               <p>
-                Belum punya akun?{" "}
-                <button type="button" onClick={() => setIsRegistering(true)} className="text-primary hover:underline">
-                  Daftar di sini
+                <button type="button" onClick={() => setMode("email")} className="text-primary hover:underline">
+                  Masuk pakai email
                 </button>
               </p>
+            ) : (
+              <>
+                <p>
+                  Belum punya akun?{" "}
+                  <button type="button" onClick={() => setMode("register")} className="text-primary hover:underline">
+                    Daftar di sini
+                  </button>
+                </p>
+                <p className="mt-2">
+                  <button type="button" onClick={() => setMode("phone")} className="text-primary hover:underline inline-flex items-center gap-1">
+                    <Smartphone size={14} /> Masuk pakai nomor HP
+                  </button>
+                </p>
+              </>
             )}
           </div>
 

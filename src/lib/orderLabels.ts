@@ -31,7 +31,9 @@ export function paymentStatusLabel(status: string): string {
     pending: "Menunggu pembayaran",
     authorized: "Dana ditahan",
     captured: "Dana dicapture",
+    confirmed: "Dikonfirmasi",
     voided: "Dana dikembalikan",
+    refunded: "Dana dikembalikan",
     failed: "Pembayaran gagal",
   };
   return map[status] ?? status;

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Loader2, LogOut, Shield, Wallet, HelpCircle } from "lucide-react";
 import { getMeFn } from "@/lib/auth.server";
 import { useSessionStore } from "@/stores/useSessionStore";
+import { workerPhotoUrl } from "@/lib/workerMapUtils";
 
 export const Route = createFileRoute("/consumers/profile")({
   head: () => ({ meta: [{ title: "Akun · KerjaDekat" }] }),
@@ -41,8 +42,10 @@ function ProfilePage() {
       <div className="rounded-[24px] bg-[#ffffff] p-6 flex items-center gap-4">
         {isLoading ? (
           <div className="size-16 rounded-full bg-[#e8ebe6] animate-pulse" />
+        ) : profile?.ProfilePhoto ? (
+          <img src={workerPhotoUrl(profile.ProfilePhoto)} alt="" className="size-16 rounded-full object-cover" />
         ) : (
-          <div className="size-16 rounded-full bg-[#9fe870] flex items-center justify-center font-display font-black text-2xl">
+          <div className="size-16 rounded-full bg-[#9fe870] flex items-center justify-center font-display font-black text-2xl shrink-0">
             {displayName[0] ?? "?"}
           </div>
         )}

@@ -48,6 +48,7 @@ function NewWorkerPage() {
   const [faceFile, setFaceFile] = useState<UploadedFile | null>(null);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [workerLocation, setWorkerLocation] = useState<{ lat: number; lng: number } | null>(null);
   
   // Fetch territories and skills
   const [territories, setTerritories] = useState<Kelurahan[]>([]);
@@ -79,7 +80,9 @@ function NewWorkerPage() {
             form.setFieldValue('kelurahanId', firstKel.ID);
             // Center map on first kelurahan
             if (firstKel.Centroid?.Valid) {
-              setMapCenter([firstKel.Centroid.Lat, firstKel.Centroid.Lng]);
+              const center: [number, number] = [firstKel.Centroid.Lat, firstKel.Centroid.Lng];
+              setMapCenter(center);
+              setWorkerLocation({ lat: firstKel.Centroid.Lat, lng: firstKel.Centroid.Lng });
             }
           }
         }
@@ -130,6 +133,8 @@ function NewWorkerPage() {
               skill_ids: value.skillIds,
               ktp_photo: ktpPayload,
               profile_photo: facePayload,
+              latitude: workerLocation?.lat,
+              longitude: workerLocation?.lng,
             },
           },
         });
@@ -428,6 +433,7 @@ function NewWorkerPage() {
                   ];
                   if (mapCenter[0] !== newCenter[0] || mapCenter[1] !== newCenter[1]) {
                     setMapCenter(newCenter);
+                    setWorkerLocation({ lat: selectedKel.Centroid.Lat, lng: selectedKel.Centroid.Lng });
                   }
                 }
 
@@ -466,7 +472,7 @@ function NewWorkerPage() {
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
               <MapPin className="h-4 w-4" />
-              Lokasi Kelurahan
+              Lokasi Kelurahan — Geser pin hijau untuk pinpoint rumah pekerja
             </Label>
             <div className="rounded-xl border overflow-hidden">
               <Suspense
@@ -488,9 +494,13 @@ function NewWorkerPage() {
                     form.setFieldValue('kelurahanId', id);
                     const selectedKel = kelurahans.find((k) => k.ID === id);
                     if (selectedKel?.Centroid?.Valid) {
-                      setMapCenter([selectedKel.Centroid.Lat, selectedKel.Centroid.Lng]);
+                      const center: [number, number] = [selectedKel.Centroid.Lat, selectedKel.Centroid.Lng];
+                      setMapCenter(center);
+                      setWorkerLocation({ lat: selectedKel.Centroid.Lat, lng: selectedKel.Centroid.Lng });
                     }
                   }}
+                  locationPin={workerLocation ?? undefined}
+                  onLocationPinChange={(lat, lng) => setWorkerLocation({ lat, lng })}
                 />
               </Suspense>
             </div>

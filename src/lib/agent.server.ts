@@ -71,6 +71,10 @@ async function postRegisterWorker(
       form.append("rt_rw", payload.rt_rw);
     }
     form.append("kelurahan_id", String(payload.kelurahan_id));
+    if (payload.latitude != null && payload.longitude != null) {
+      form.append("latitude", String(payload.latitude));
+      form.append("longitude", String(payload.longitude));
+    }
     payload.skill_ids.forEach((id) => form.append("skill_ids", String(id)));
     appendPayloadFile(form, "ktp_photo", payload.ktp_photo);
     appendPayloadFile(form, "profile_photo", payload.profile_photo);

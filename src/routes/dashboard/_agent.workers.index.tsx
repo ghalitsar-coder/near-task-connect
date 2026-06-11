@@ -9,6 +9,7 @@ import { STATUS_LABEL } from "@/types/worker";
 import { formatDate } from "@/lib/format";
 import { useSessionStore } from "@/stores/useSessionStore";
 import { getAgentWorkersFn } from "@/lib/agent.server";
+import { serviceBase } from "@/lib/api/config";
 import type { AgentWorkerSummary } from "@/lib/api/types";
 
 export const Route = createFileRoute("/dashboard/_agent/workers/")({
@@ -20,9 +21,12 @@ const STATUSES = ["all", "active", "pending_verification", "suspended", "rejecte
 
 type WorkerStatus = (typeof STATUSES)[number];
 
+
+
 type WorkerRow = {
   id: string;
   fullName: string;
+  profilePhoto?: string | null;
   status: string;
   availability: string;
   kelurahan: string;
@@ -34,10 +38,16 @@ type WorkerRow = {
   skills: string[];
 };
 
+function workerPhotoUrl(key?: string | null): string {
+  if (!key) return "";
+  return `${serviceBase()}/files/photo?key=${encodeURIComponent(key)}`;
+}
+
 function mapWorkers(items: AgentWorkerSummary[]): WorkerRow[] {
   return items.map((w) => ({
     id: w.user_id,
     fullName: w.full_name,
+    profilePhoto: w.profile_photo,
     status: w.status,
     availability: w.availability,
     kelurahan: w.kelurahan,
@@ -170,9 +180,13 @@ function WorkersPage() {
                       params={{ workerId: w.id }}
                       className="flex items-center gap-3 group"
                     >
-                      <div className="h-9 w-9 rounded-full bg-accent grid place-items-center font-semibold text-sm">
-                        {w.fullName[0]}
-                      </div>
+                      {w.profilePhoto ? (
+                        <img src={workerPhotoUrl(w.profilePhoto)} alt="" className="h-9 w-9 rounded-full object-cover" />
+                      ) : (
+                        <div className="h-9 w-9 rounded-full bg-accent grid place-items-center font-semibold text-sm shrink-0">
+                          {w.fullName[0]}
+                        </div>
+                      )}
                       <div>
                         <div className="font-semibold group-hover:underline">
                           {w.fullName}

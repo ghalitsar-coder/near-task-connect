@@ -1,8 +1,14 @@
 import type { NearbyWorker } from "@/lib/api/types";
 import type { Worker } from "@/data/mockWorkers";
+import { serviceBase } from "@/lib/api/config";
 
-const avatar = (seed: string) =>
+const dicebear = (seed: string) =>
   `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=e2f6d5`;
+
+export function workerPhotoUrl(key?: string | null): string {
+  if (!key) return "";
+  return `${serviceBase()}/files/photo?key=${encodeURIComponent(key)}`;
+}
 
 /** Maps GET /workers/nearby items to NearbyMap worker markers. */
 export function nearbyToMapWorker(w: NearbyWorker): Worker {
@@ -10,7 +16,7 @@ export function nearbyToMapWorker(w: NearbyWorker): Worker {
   return {
     id: w.user_id,
     name: w.full_name,
-    photo: avatar(w.full_name),
+    photo: w.profile_photo ? workerPhotoUrl(w.profile_photo) : dicebear(w.full_name),
     skills: w.skills.map((s) => s.name.toLowerCase()),
     primarySkill: primary,
     rating: w.rating_avg,

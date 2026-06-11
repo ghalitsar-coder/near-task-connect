@@ -123,6 +123,13 @@ export const loginEmailFn = createServerFn({ method: "POST" }).handler(async ({ 
   });
 });
 
+export const loginPhoneFn = createServerFn({ method: "POST" }).handler(async ({ data }) => {
+  const phone = (data as { phone_number?: string } | undefined)?.phone_number ?? "";
+  return postJson<{ phone_number: string; role: string }>("/auth/phone-login", {
+    phone_number: phone,
+  });
+});
+
 export const registerEmailFn = createServerFn({ method: "POST" }).handler(async ({ data }) => {
   const input = data as { email?: string; password?: string; name?: string; phone_number?: string; role?: string } | undefined;
   return postJson<null>("/auth/register", {

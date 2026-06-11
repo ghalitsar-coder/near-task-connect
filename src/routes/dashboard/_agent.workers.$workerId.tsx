@@ -10,10 +10,12 @@ import {
   Fingerprint,
   ShieldCheck,
   AlertTriangle,
+  Image,
 } from "lucide-react";
 import { useWorkersStore } from "@/stores/useWorkersStore";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { WorkerStatusBadge } from "@/components/workers/WorkerStatusBadge";
 import { SKILL_LABEL } from "@/types/worker";
 import { formatIDR, formatDate, formatDateTime } from "@/lib/format";
@@ -66,9 +68,13 @@ function WorkerDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           <div className="rounded-2xl border bg-card p-6">
             <div className="flex items-start gap-5">
-              <div className="h-20 w-20 rounded-2xl bg-accent grid place-items-center text-3xl font-black">
-                {worker.fullName[0]}
-              </div>
+              {worker.faceImageUrl ? (
+                <img src={worker.faceImageUrl} alt={worker.fullName} className="size-20 rounded-2xl object-cover" />
+              ) : (
+                <div className="size-20 rounded-2xl bg-accent grid place-items-center text-3xl font-black shrink-0">
+                  {worker.fullName[0]}
+                </div>
+              )}
               <div className="flex-1">
                 <div className="flex items-start justify-between gap-2 flex-wrap">
                   <div>
@@ -110,6 +116,30 @@ function WorkerDetailPage() {
               </div>
             </div>
           </div>
+
+          {(worker.ktpImageUrl || worker.faceImageUrl) && (
+            <div className="rounded-2xl border bg-card p-6">
+              <h2 className="font-bold text-lg mb-3">Foto</h2>
+              <div className="grid grid-cols-2 gap-4">
+                {worker.ktpImageUrl && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-2">Foto KTP</p>
+                    <a href={worker.ktpImageUrl} target="_blank" rel="noreferrer">
+                      <img src={worker.ktpImageUrl} alt="KTP" className="w-full rounded-xl border object-cover aspect-[4/3]" />
+                    </a>
+                  </div>
+                )}
+                {worker.faceImageUrl && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-2">Foto Wajah</p>
+                    <a href={worker.faceImageUrl} target="_blank" rel="noreferrer">
+                      <img src={worker.faceImageUrl} alt="Face" className="w-full rounded-xl border object-cover aspect-[4/3]" />
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="rounded-2xl border bg-card p-6">
             <h2 className="font-bold text-lg">Hasil OCR KTP</h2>

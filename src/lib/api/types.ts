@@ -14,6 +14,8 @@ export type ApiUser = {
   Status?: string;
   KelurahanID?: number | null;
   RtRw?: string | null;
+  ProfilePhoto?: string | null;
+  KtpPhotoRef?: string | null;
 };
 
 export type SkillCategory = {
@@ -26,6 +28,7 @@ export type SkillCategory = {
 export type NearbyWorker = {
   user_id: string;
   full_name: string;
+  profile_photo?: string | null;
   latitude: number;
   longitude: number;
   distance_m: number;
@@ -40,6 +43,7 @@ export type NearbyWorker = {
 export type AgentWorkerSummary = {
   user_id: string;
   full_name: string;
+  profile_photo?: string | null;
   phone_number?: string | null;
   status: string;
   availability: string;
@@ -80,6 +84,7 @@ export type ApiOrder = {
   PaymentStatus: string;
   CreatedAt: string;
   Skill?: SkillCategory;
+  Consumer?: ApiUser | null;
   Worker?: ApiUser | null;
   Logs?: ApiOrderStatusLog[];
 };
@@ -123,4 +128,6 @@ export type RegisterWorkerPayload = {
   skill_ids: number[];
   ktp_photo: UploadedFilePayload;
   profile_photo: UploadedFilePayload;
+  latitude?: number;
+  longitude?: number;
 };

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Map, MapMarker, MarkerContent, MarkerLabel, MarkerPopup, MapRoute } from "@/components/ui/map";
+import { MapPin } from "lucide-react";
 import type { Worker } from "@/data/mockWorkers";
 import { formatIDR } from "@/lib/formatCurrency";
 import { Clock, Route, Loader2, CheckCircle2 } from "lucide-react";
@@ -22,6 +23,8 @@ interface Props {
   }>;
   selectedKelurahanId?: number | null;
   onKelurahanSelect?: (id: number) => void;
+  locationPin?: { lat: number; lng: number };
+  onLocationPinChange?: (lat: number, lng: number) => void;
 }
 
 export function MapcnNearbyMap({
@@ -35,6 +38,8 @@ export function MapcnNearbyMap({
   kelurahans = [],
   selectedKelurahanId,
   onKelurahanSelect,
+  locationPin,
+  onLocationPinChange,
 }: Props) {
   const [lat, lng] = center;
   const mapCenter: [number, number] = [lng, lat];
@@ -214,6 +219,32 @@ export function MapcnNearbyMap({
             </MapMarker>
           );
         })}
+        {locationPin && (
+          <MapMarker
+            draggable
+            longitude={locationPin.lng}
+            latitude={locationPin.lat}
+            onDrag={(lngLat) => onLocationPinChange?.(lngLat.lat, lngLat.lng)}
+          >
+            <MarkerContent>
+              <div className="cursor-move">
+                <MapPin className="fill-[#9fe870] stroke-white" size={32} />
+              </div>
+              <MarkerLabel position="top">Lokasi pekerja</MarkerLabel>
+            </MarkerContent>
+            <MarkerPopup>
+              <div className="space-y-1 p-1">
+                <p className="text-foreground font-semibold text-sm">Lokasi Pekerja</p>
+                <p className="text-muted-foreground text-xs tabular-nums">
+                  {locationPin.lat.toFixed(4)}, {locationPin.lng.toFixed(4)}
+                </p>
+                <p className="text-muted-foreground text-xs">
+                  Geser pin untuk menyesuaikan lokasi
+                </p>
+              </div>
+            </MarkerPopup>
+          </MapMarker>
+        )}
         {kelurahans.map((kel) => {
           if (!kel.Centroid?.Valid) return null;
           const isSelected = selectedKelurahanId === kel.ID;

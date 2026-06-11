@@ -6,6 +6,7 @@ import { WiseButton } from "@/components/brand/WiseButton";
 import { getAgentTerritoriesFn, getSkillCategoriesFn, registerWorkerFn } from "@/lib/agent.server";
 import type { Kelurahan, SkillCategory } from "@/lib/api/types";
 import { fileToPayload } from "@/lib/uploads";
+import { serviceBase } from "@/lib/api/config";
 import { useSessionStore } from "@/stores/useSessionStore";
 
 export const Route = createFileRoute("/agents/register")({
@@ -35,6 +36,8 @@ function RegisterWorker() {
     nik: string;
     fullName: string;
     phone: string;
+    ktpPhotoUrl?: string;
+    profilePhotoUrl?: string;
   } | null>(null);
 
   const territoriesQuery = useQuery({
@@ -98,10 +101,14 @@ function RegisterWorker() {
         setStep("skills");
         return;
       }
+      const photoUrl = (key?: string | null) =>
+        key ? `${serviceBase()}/files/photo?key=${encodeURIComponent(key)}` : undefined;
       setRegisterResult({
         nik: res.data.ocr_preview.nik,
         fullName: res.data.ocr_preview.full_name,
         phone: res.data.user.PhoneNumber,
+        ktpPhotoUrl: photoUrl(res.data.user.KtpPhotoRef),
+        profilePhotoUrl: photoUrl(res.data.user.ProfilePhoto),
       });
       setStep("done");
     },
@@ -408,6 +415,21 @@ function RegisterWorker() {
               <br />
               No. HP: <strong>{registerResult?.phone ?? "—"}</strong>
             </p>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            {registerResult?.ktpPhotoUrl && (
+              <div className="rounded-[24px] bg-[#ffffff] p-4">
+                <p className="text-xs text-muted-foreground mb-2">Foto KTP</p>
+                <img src={registerResult.ktpPhotoUrl} alt="KTP" className="w-full rounded-xl object-cover aspect-[4/3]" />
+              </div>
+            )}
+            {registerResult?.profilePhotoUrl && (
+              <div className="rounded-[24px] bg-[#ffffff] p-4">
+                <p className="text-xs text-muted-foreground mb-2">Foto Wajah</p>
+                <img src={registerResult.profilePhotoUrl} alt="Face" className="w-full rounded-xl object-cover aspect-[4/3]" />
+              </div>
+            )}
           </div>
           <div className="mt-4 flex gap-2 justify-center flex-wrap">
             <button
