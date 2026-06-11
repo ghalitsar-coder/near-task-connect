@@ -14,8 +14,7 @@ type MapDescriptionInput = {
 };
 
 export const mapDescriptionToSkillFn = createServerFn({ method: "POST" })
-  .validator((d: MapDescriptionInput) => d)
-  .handler(async ({ data }) => {
+  .handler(async ({ data }: { data: MapDescriptionInput }) => {
     const { description, categories } = data;
 
     if (!description || description.trim().length < 3) {
