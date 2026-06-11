@@ -35,9 +35,9 @@ pipeline {
                         git config user.name "Jenkins CI"
                         
                         # Ubah tag image di file deployment frontend
-                        sed -i "s|image: ghalitsar/kerjadekat-frontend:.*|image: ghalitsar/kerjadekat-frontend:${COMMIT_HASH}|" gitops/base/frontend/deployment.yaml
+                        sed -i "s|image: ghalitsar/kerjadekat-frontend:.*|image: ghalitsar/kerjadekat-frontend:${COMMIT_HASH}|" gitops/overlays/eks/manifests/frontend.yaml
                         
-                        git add gitops/base/frontend/deployment.yaml
+                        git add gitops/overlays/eks/manifests/frontend.yaml
                         git commit -m "ci(frontend): update image tag to ${COMMIT_HASH}" || echo "No changes"
                         git push origin master
                         """
