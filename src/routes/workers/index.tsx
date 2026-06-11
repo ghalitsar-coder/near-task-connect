@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Bell, Power, Star, ListOrdered } from "lucide-react";
+import { Bell, Power, Star, ListOrdered, Sparkles } from "lucide-react";
 import { TopNav } from "@/components/shell/TopNav";
 import { useSessionStore } from "@/stores/useSessionStore";
 import { getWorkerOrdersFn } from "@/lib/worker.server";
@@ -24,12 +24,14 @@ function WorkerDashboard() {
     queryKey: ["worker-orders", accessToken],
     queryFn: () => getWorkerOrdersFn({ data: { accessToken } }),
     enabled: authed && Boolean(accessToken),
+    refetchInterval: 15_000,
   });
 
   const orders = data?.ok ? (data.data?.items ?? []) : [];
   const completedOrders = orders.filter((o) => o.Status === "completed");
   const todayEarning = completedOrders.reduce((s, o) => s + (o.AgreedRate ?? 0), 0);
   const todayJobs = completedOrders.length;
+  const offeredOrders = orders.filter((o) => o.Status === "offered" || o.Status === "pending_match");
   const activeOrders = orders.filter((o) =>
     ["pending_match", "offered", "accepted", "worker_departed", "in_progress"].includes(o.Status)
   );
@@ -83,6 +85,28 @@ function WorkerDashboard() {
           </div>
         </div>
 
+        {/* tawaran masuk — prioritas tinggi */}
+        {online && offeredOrders.length > 0 && (
+          <Link
+            to="/workers/orders/$id"
+            params={{ id: offeredOrders[0].ID }}
+            className="card-content mt-4 border-l-4 border-l-warning block"
+          >
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-full bg-warning-pale flex items-center justify-center">
+                <Sparkles size={20} className="text-warning" />
+              </div>
+              <div className="flex-1">
+                <div className="font-black text-sm">Tawaran masuk!</div>
+                <div className="text-xs text-body">
+                  {offeredOrders.length} tawaran — {skillEmoji(offeredOrders[0].Skill?.Name ?? "")} {offeredOrders[0].Skill?.Name ?? "Jasa"}
+                </div>
+              </div>
+              <div className="text-xs font-semibold text-primary">Lihat</div>
+            </div>
+          </Link>
+        )}
+
         {/* active orders summary */}
         {activeOrders.length > 0 && (
           <div className="card-content mt-4 border-l-4 border-l-primary">
@@ -116,14 +140,14 @@ function WorkerDashboard() {
         )}
 
         {/* waiting */}
-        {online && activeOrders.length === 0 && (
+        {online && activeOrders.length === 0 && offeredOrders.length === 0 && (
           <div className="card-content mt-4 text-center">
             <div className="size-14 rounded-full bg-primary-pale mx-auto flex items-center justify-center">
               <Bell size={24} className="animate-pulse" />
             </div>
             <div className="font-display font-black mt-3">Siap menerima tawaran</div>
             <p className="text-sm text-body mt-1">
-              Kamu sedang online. Tawaran akan muncul di halaman pesanan.
+              Halaman ini akan otomatis mendeteksi tawaran baru setiap 15 detik.
             </p>
           </div>
         )}
