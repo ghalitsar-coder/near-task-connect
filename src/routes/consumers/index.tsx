@@ -1,13 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, MapPin, ChevronRight, AlertCircle, Loader2, Users, LogOut, User as UserIcon, Sparkles, ArrowRight } from "lucide-react";
+import { Search, MapPin, ChevronRight, AlertCircle, Loader2, Users, LogOut, User as UserIcon, Sparkles, Star, Route as RouteIcon, DollarSign } from "lucide-react";
 import { getConsumerSkillCategoriesFn, getNearbyWorkersFn } from "@/lib/consumer.server";
-import { mapDescriptionToSkillFn } from "@/lib/nlp.server";
+import { findWorkersFn } from "@/lib/nlp.server";
 import { skillEmoji } from "@/lib/orderLabels";
 import { DEFAULT_LAT, DEFAULT_LNG, readUserPosition } from "@/lib/geo";
 import { nearbyToMapWorker } from "@/lib/workerMapUtils";
-import type { SkillCategory } from "@/lib/api/types";
+import type { SkillCategory, NearbyWorker } from "@/lib/api/types";
 import { useSessionStore } from "@/stores/useSessionStore";
 import { cn } from "@/lib/utils";
 import {
@@ -42,6 +42,8 @@ function ConsumerHome() {
   const [aiDescription, setAiDescription] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState<{ skill_id: number | null; reasoning: string } | null>(null);
+  const [aiWorkers, setAiWorkers] = useState<NearbyWorker[] | null>(null);
+  const [aiSkillIDs, setAiSkillIDs] = useState<number[]>([]);
   const [center, setCenter] = useState<[number, number]>([DEFAULT_LAT, DEFAULT_LNG]);
   const [mapMode, setMapMode] = useState<"leaflet" | "mapcn">("leaflet");
   const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
@@ -58,21 +60,28 @@ function ConsumerHome() {
     if (!aiDescription.trim()) return;
     setIsAiLoading(true);
     setAiResult(null);
+    setAiWorkers(null);
+    setAiSkillIDs([]);
     try {
       const categoriesForAi = categories.map(c => ({ id: c.ID, name: c.Name }));
-      const res = await mapDescriptionToSkillFn({
-        data: { description: aiDescription, categories: categoriesForAi }
+      const res = await findWorkersFn({
+        data: {
+          accessToken: accessToken ?? undefined,
+          payload: {
+            description: aiDescription,
+            categories: categoriesForAi,
+            latitude: center[0],
+            longitude: center[1],
+          },
+        },
       });
       if (res.ok && res.data) {
-        setAiResult(res.data);
-        if (res.data.skill_id) {
-          setActiveSkillId(res.data.skill_id);
-          // Scroll to the categories section
-          document.getElementById(`consumer-home-skill-${res.data.skill_id}`)?.scrollIntoView({ behavior: 'smooth' });
-        }
+        setAiWorkers(res.data.items ?? []);
+        setAiSkillIDs(res.data.skill_ids ?? []);
+        setAiResult({ skill_id: res.data.skill_ids?.[0] ?? null, reasoning: res.data.reasoning });
       }
     } catch (err) {
-      console.error("AI Analysis failed", err);
+      console.error("AI Worker search failed", err);
     } finally {
       setIsAiLoading(false);
     }
@@ -208,35 +217,35 @@ function ConsumerHome() {
               </div>
               
               {aiResult && (
-                <div className="mt-5 p-4 rounded-[12px] border border-[#e6e6e6] bg-[#ffffff] shadow-[0_1px_2px_rgba(0,0,0,0.01),0_4px_18px_rgba(0,0,0,0.04)] animate-in fade-in slide-in-from-top-2">
-                  <div className="flex items-start gap-3">
-                    <div className={cn("mt-0.5 size-5 rounded-full flex items-center justify-center text-[#ffffff] shrink-0", aiResult.skill_id ? "bg-[#1aae39]" : "bg-[#dd5b00]")}>
-                      <Sparkles size={12} />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-[15px] text-[#31302e] leading-[1.5]">
-                        {aiResult.reasoning}
-                      </p>
-                      {aiResult.skill_id ? (
-                        <div className="mt-4 flex items-center justify-between border-t border-[#e6e6e6] pt-3">
-                          <span className="text-[14px] font-semibold text-[#000000]">
-                            Kategori: {categories.find(c => c.ID === aiResult.skill_id)?.Name}
-                          </span>
-                          <Link
-                            to="/consumers/worker/$id"
-                            params={{ id: String(aiResult.skill_id) }}
-                            className="bg-[#ffffff] text-[#000000] border border-[#e6e6e6] px-[14px] py-[4px] rounded-[8px] text-[16px] font-medium hover:bg-[#f6f5f4] transition-colors flex items-center gap-2 shadow-[0_1px_2px_rgba(0,0,0,0.01)]"
-                          >
-                            Pilih <ArrowRight size={14} />
-                          </Link>
-                        </div>
-                      ) : (
-                        <div className="mt-3 text-[14px] text-[#615d59]">
-                          Maaf, kami tidak dapat menemukan kategori yang cocok.
-                        </div>
-                      )}
+                <div className="mt-5 space-y-3 animate-in fade-in slide-in-from-top-2">
+                  <div className="p-4 rounded-[12px] border border-[#e6e6e6] bg-[#ffffff] shadow-[0_1px_2px_rgba(0,0,0,0.01),0_4px_18px_rgba(0,0,0,0.04)]">
+                    <div className="flex items-start gap-3">
+                      <div className={cn("mt-0.5 size-5 rounded-full flex items-center justify-center text-[#ffffff] shrink-0", (aiWorkers?.length ?? 0) > 0 ? "bg-[#1aae39]" : "bg-[#dd5b00]")}>
+                        <Sparkles size={12} />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-[15px] text-[#31302e] leading-[1.5]">
+                          {aiResult.reasoning}
+                        </p>
+                        {(aiWorkers?.length ?? 0) === 0 && (
+                          <div className="mt-3 text-[14px] text-[#615d59]">
+                            Maaf, tidak ada pekerja yang cocok dengan kebutuhanmu.
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
+
+                  {aiWorkers && aiWorkers.length > 0 && (
+                    <div className="space-y-2.5">
+                      <p className="text-[13px] font-semibold text-[#615d59]">
+                        {aiWorkers.length} pekerja ditemukan
+                      </p>
+                      {aiWorkers.map((w) => (
+                        <WorkerCard key={w.user_id} worker={w} matchedSkillIDs={aiSkillIDs} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -453,6 +462,74 @@ function ConsumerHome() {
         </div>
       </div>
     </main>
+  );
+}
+
+function WorkerCard({ worker, matchedSkillIDs }: { worker: NearbyWorker; matchedSkillIDs: number[] }) {
+  const matchedSkills = worker.skills.filter((s) => matchedSkillIDs.includes(s.id));
+  const matchCount = matchedSkills.length;
+  const matchLabel = matchCount >= 3 ? "Sangat Cocok" : matchCount === 2 ? "Cocok" : "Cukup Cocok";
+  const matchColors = matchCount >= 3 ? "bg-[#e2f6d5] text-[#163300]" : matchCount === 2 ? "bg-[#fef7d6] text-[#5c4900]" : "bg-[#f0eeec] text-[#615d59]";
+
+  return (
+    <Link
+      to="/consumers/worker/$id"
+      params={{ id: String(matchedSkillIDs[0] ?? worker.skills[0]?.id ?? 0) }}
+      className="block rounded-[16px] bg-[#ffffff] border border-[#e6e6e6] p-4 hover:shadow-sm transition-shadow"
+    >
+      <div className="flex items-start gap-3">
+        <div className="size-11 rounded-full bg-[#e2f6d5] flex items-center justify-center text-lg font-bold shrink-0 text-[#163300]">
+          {worker.full_name[0] ?? "?"}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-[15px] text-[#000000] truncate">{worker.full_name}</span>
+            {worker.verified_rt && (
+              <span className="text-[11px] bg-[#e2f6d5] text-[#163300] px-1.5 py-0.5 rounded-full font-semibold shrink-0">
+                RT
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-3 mt-1 text-[13px] text-[#615d59]">
+            <span className="flex items-center gap-1">
+              <Star size={12} className="text-[#e5a000]" fill="#e5a000" />
+              {worker.rating_avg > 0 ? worker.rating_avg.toFixed(1) : "Baru"}
+            </span>
+            <span className="flex items-center gap-1">
+              <RouteIcon size={12} />
+              {worker.distance_m < 1000
+                ? `${Math.round(worker.distance_m)} m`
+                : `${(worker.distance_m / 1000).toFixed(1)} km`}
+            </span>
+            {worker.base_rate != null && (
+              <span className="flex items-center gap-1">
+                <DollarSign size={12} />
+                {worker.base_rate.toLocaleString()}
+              </span>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {worker.skills.slice(0, 3).map((s) => (
+              <span
+                key={s.id}
+                className={cn(
+                  "text-[11px] px-2 py-0.5 rounded-full font-medium",
+                  matchedSkillIDs.includes(s.id) ? "bg-[#e2f6d5] text-[#163300]" : "bg-[#f0eeec] text-[#615d59]",
+                )}
+              >
+                {s.name}
+              </span>
+            ))}
+            {worker.skills.length > 3 && (
+              <span className="text-[11px] text-[#615d59]">+{worker.skills.length - 3}</span>
+            )}
+          </div>
+        </div>
+        <div className={cn("shrink-0 px-2.5 py-1 rounded-full text-[11px] font-bold", matchColors)}>
+          {matchLabel}
+        </div>
+      </div>
+    </Link>
   );
 }
 
