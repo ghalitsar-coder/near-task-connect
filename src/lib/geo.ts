@@ -1,6 +1,6 @@
-/** Default pilot location (Tebet area) when GPS unavailable. */
-export const DEFAULT_LAT = -6.2349;
-export const DEFAULT_LNG = 106.857;
+/** Default pilot location (Bandung) when GPS unavailable. */
+export const DEFAULT_LAT = -6.92;
+export const DEFAULT_LNG = 107.61;
 
 export function readUserPosition(): Promise<{ lat: number; lng: number }> {
   return new Promise((resolve) => {
