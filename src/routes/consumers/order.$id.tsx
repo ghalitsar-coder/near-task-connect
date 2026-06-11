@@ -6,6 +6,7 @@ import { TopNav } from "@/components/shell/TopNav";
 import { WiseButton } from "@/components/brand/WiseButton";
 import {
   cancelConsumerOrderFn,
+  confirmPaymentOrderFn,
   getConsumerOrderFn,
   getNearbyWorkersFn,
 } from "@/lib/consumer.server";
@@ -54,6 +55,15 @@ function OrderPage() {
       if (res.ok) {
         queryClient.invalidateQueries({ queryKey: ["consumer-order", id] });
         queryClient.invalidateQueries({ queryKey: ["consumer-orders"] });
+      }
+    },
+  });
+
+  const confirmPaymentMutation = useMutation({
+    mutationFn: () => confirmPaymentOrderFn({ data: { accessToken, orderId: id } }),
+    onSuccess: (res) => {
+      if (res.ok) {
+        queryClient.invalidateQueries({ queryKey: ["consumer-order", id] });
       }
     },
   });
@@ -270,9 +280,25 @@ function OrderPage() {
             </p>
             {isCompleted && (
               <div className="mt-4 space-y-2">
-                <WiseButton full disabled>
-                  Konfirmasi pembayaran (segera hadir)
-                </WiseButton>
+                {order.PaymentStatus === "captured" ? (
+                  <WiseButton
+                    full
+                    onClick={() => confirmPaymentMutation.mutate()}
+                    disabled={confirmPaymentMutation.isPending}
+                  >
+                    {confirmPaymentMutation.isPending ? (
+                      <span className="inline-flex items-center gap-2">
+                        <Loader2 size={14} className="animate-spin" /> Memproses…
+                      </span>
+                    ) : (
+                      "Konfirmasi pembayaran"
+                    )}
+                  </WiseButton>
+                ) : order.PaymentStatus === "confirmed" ? (
+                  <WiseButton full variant="tertiary" disabled>
+                    Pembayaran已 dikonfirmasi
+                  </WiseButton>
+                ) : null}
                 <WiseButton full variant="tertiary" disabled>
                   Beri ulasan (segera hadir)
                 </WiseButton>

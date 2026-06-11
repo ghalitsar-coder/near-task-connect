@@ -73,7 +73,7 @@ function BookServicePage() {
         setSubmitError(res.error ?? "Gagal membuat pesanan.");
         return;
       }
-      navigate({ to: "/consumers/order/$id", params: { id: res.data.ID } });
+      navigate({ to: "/consumers/payment/$id", params: { id: res.data.ID } });
     },
     onError: (err) => {
       setSubmitError(err instanceof Error ? err.message : "Gagal membuat pesanan.");

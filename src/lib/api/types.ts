@@ -81,6 +81,7 @@ export type ApiOrder = {
   AgreedRate?: number | null;
   PlatformFee: number;
   PaymentMethodFee?: string | null;
+  PaymentURL?: string | null;
   PaymentStatus: string;
   CreatedAt: string;
   Skill?: SkillCategory;

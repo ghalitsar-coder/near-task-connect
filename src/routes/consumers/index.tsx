@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, MapPin, ChevronRight, AlertCircle, Loader2, Users, LogOut, User as UserIcon } from "lucide-react";
+import { Search, MapPin, ChevronRight, AlertCircle, Loader2, Users, LogOut, User as UserIcon, Sparkles, ArrowRight } from "lucide-react";
 import { getConsumerSkillCategoriesFn, getNearbyWorkersFn } from "@/lib/consumer.server";
+import { mapDescriptionToSkillFn } from "@/lib/nlp.server";
 import { skillEmoji } from "@/lib/orderLabels";
 import { DEFAULT_LAT, DEFAULT_LNG, readUserPosition } from "@/lib/geo";
 import { nearbyToMapWorker } from "@/lib/workerMapUtils";
@@ -37,6 +38,10 @@ function ConsumerHome() {
   const authed = useSessionStore((s) => s.authed);
   const [activeSkillId, setActiveSkillId] = useState<number | null>(null);
   const [query, setQuery] = useState("");
+  const [showAiSearch, setShowAiSearch] = useState(false);
+  const [aiDescription, setAiDescription] = useState("");
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState<{ skill_id: number | null; reasoning: string } | null>(null);
   const [center, setCenter] = useState<[number, number]>([DEFAULT_LAT, DEFAULT_LNG]);
   const [mapMode, setMapMode] = useState<"leaflet" | "mapcn">("leaflet");
   const [selectedWorkerId, setSelectedWorkerId] = useState<string | null>(null);
@@ -47,6 +52,30 @@ function ConsumerHome() {
   const handleLogout = () => {
     signOut();
     logoutMutation.mutate();
+  };
+
+  const handleAiAnalyze = async () => {
+    if (!aiDescription.trim()) return;
+    setIsAiLoading(true);
+    setAiResult(null);
+    try {
+      const categoriesForAi = categories.map(c => ({ id: c.ID, name: c.Name }));
+      const res = await mapDescriptionToSkillFn({
+        data: { description: aiDescription, categories: categoriesForAi }
+      });
+      if (res.ok && res.data) {
+        setAiResult(res.data);
+        if (res.data.skill_id) {
+          setActiveSkillId(res.data.skill_id);
+          // Scroll to the categories section
+          document.getElementById(`consumer-home-skill-${res.data.skill_id}`)?.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    } catch (err) {
+      console.error("AI Analysis failed", err);
+    } finally {
+      setIsAiLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -134,6 +163,7 @@ function ConsumerHome() {
             Cari jasa <span className="bg-[#9fe870] px-1.5 -mx-0.5 rounded-md">di sekitarmu.</span>
           </h1>
 
+
           <div className="mt-5 relative">
             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-mute" />
             <input
@@ -143,9 +173,76 @@ function ConsumerHome() {
               placeholder="Cari kategori jasa, mis: ledeng"
               className="text-input !pl-11 bg-[#ffffff] shadow-sm"
             />
+            <button
+              onClick={() => setShowAiSearch(!showAiSearch)}
+              className={cn("absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[12px] font-semibold transition-colors border shadow-[0_1px_2px_rgba(0,0,0,0.01)]", showAiSearch ? "bg-[#d6b6f6] text-[#391c57] border-[#d6b6f6]" : "bg-[#ffffff] text-[#31302e] border-[#e6e6e6] hover:bg-[#f6f5f4]")}
+            >
+              <Sparkles size={14} />
+              Tanya AI
+            </button>
           </div>
-        </section>
 
+          {showAiSearch && (
+            <div className="mt-4 bg-[#ffffff] rounded-[12px] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.01),0_2px_8px_rgba(0,0,0,0.02)] border border-[#e6e6e6] animate-in slide-in-from-top-2 fade-in">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="size-8 rounded-full bg-[#d6b6f6] flex items-center justify-center text-[#391c57] shrink-0">
+                  <Sparkles size={16} />
+                </div>
+                <span className="text-[20px] font-semibold text-[#000000] tracking-[-0.125px]">Pencarian Pintar</span>
+              </div>
+              <textarea
+                value={aiDescription}
+                onChange={(e) => setAiDescription(e.target.value)}
+                placeholder="Ceritakan kebutuhanmu, misal: 'Keran air di dapur bocor parah'"
+                className="w-full bg-[#ffffff] border border-[#e6e6e6] rounded-[4px] p-3 text-[15px] text-[#000000] placeholder:text-[#a39e98] focus:outline-none focus:border-[#0075de] focus:ring-1 focus:ring-[#0075de] resize-none h-20 transition-shadow"
+              />
+              <div className="flex justify-end mt-3">
+                <button
+                  onClick={handleAiAnalyze}
+                  disabled={isAiLoading || !aiDescription.trim()}
+                  className="bg-[#0075de] text-[#ffffff] px-5 py-2 rounded-full text-[16px] font-medium flex items-center gap-2 disabled:opacity-50 hover:bg-[#005bab] transition-colors shadow-sm"
+                >
+                  {isAiLoading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                  Cari Jasa
+                </button>
+              </div>
+              
+              {aiResult && (
+                <div className="mt-5 p-4 rounded-[12px] border border-[#e6e6e6] bg-[#ffffff] shadow-[0_1px_2px_rgba(0,0,0,0.01),0_4px_18px_rgba(0,0,0,0.04)] animate-in fade-in slide-in-from-top-2">
+                  <div className="flex items-start gap-3">
+                    <div className={cn("mt-0.5 size-5 rounded-full flex items-center justify-center text-[#ffffff] shrink-0", aiResult.skill_id ? "bg-[#1aae39]" : "bg-[#dd5b00]")}>
+                      <Sparkles size={12} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[15px] text-[#31302e] leading-[1.5]">
+                        {aiResult.reasoning}
+                      </p>
+                      {aiResult.skill_id ? (
+                        <div className="mt-4 flex items-center justify-between border-t border-[#e6e6e6] pt-3">
+                          <span className="text-[14px] font-semibold text-[#000000]">
+                            Kategori: {categories.find(c => c.ID === aiResult.skill_id)?.Name}
+                          </span>
+                          <Link
+                            to="/consumers/worker/$id"
+                            params={{ id: String(aiResult.skill_id) }}
+                            className="bg-[#ffffff] text-[#000000] border border-[#e6e6e6] px-[14px] py-[4px] rounded-[8px] text-[16px] font-medium hover:bg-[#f6f5f4] transition-colors flex items-center gap-2 shadow-[0_1px_2px_rgba(0,0,0,0.01)]"
+                          >
+                            Pilih <ArrowRight size={14} />
+                          </Link>
+                        </div>
+                      ) : (
+                        <div className="mt-3 text-[14px] text-[#615d59]">
+                          Maaf, kami tidak dapat menemukan kategori yang cocok.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+        </section>
         <section className="px-5 pt-2 pb-4">
           {categoriesQuery.isError && (
             <div className="mb-3 flex items-start gap-2 rounded-[24px] border border-[#d03238]/30 bg-[#d03238]/10 px-3 py-2 text-xs text-[#054d28]">
