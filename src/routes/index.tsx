@@ -49,7 +49,7 @@ function Landing() {
             <span className="bg-primary px-2 -mx-2 rounded-xl">dari tetangga.</span>
           </h1>
           <p className="mt-8 text-body text-xl max-w-lg leading-relaxed">
-            Butuh tukang ledeng, listrik, atau bersih-bersih dadakan? Panggil pekerja terverifikasi RT di sekitarmu. Datang dalam hitungan menit. Bayar admin Rp2.000, upah jasa tunai ke pekerja.
+            Butuh tukang Ledeng, listrik, atau bersih-bersih dadakan? Panggil pekerja terverifikasi RT di sekitarmu. Datang dalam hitungan menit. Bayar admin Rp2.000, upah jasa tunai ke pekerja.
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row gap-4">
