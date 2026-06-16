@@ -7,7 +7,6 @@ import { WiseButton } from "@/components/brand/WiseButton";
 import { requestOtpFn, loginEmailFn, registerEmailFn, loginPhoneFn } from "@/lib/auth.server";
 import { useSessionHydrated } from "@/lib/auth/hydration";
 import { useSessionStore } from "@/stores/useSessionStore";
-import { startOAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/auth/login")({
@@ -27,7 +26,9 @@ function LoginPage() {
   const hydrated = useSessionHydrated();
   const { setPhone, role, authed, accessToken } = useSessionStore();
   
-  const [mode, setMode] = useState<"email" | "register" | "phone">("email");
+  const [mode, setMode] = useState<"email" | "register" | "phone">(
+    role === "consumer" ? "email" : "email"
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -35,13 +36,8 @@ function LoginPage() {
 
   const [error, setError] = useState<string | null>(null);
 
-  const startOAuthFlow = async (provider: "google" | "github") => {
-    setError(null);
-    try {
-      await startOAuth(provider);
-    } catch (err) {
-      setError(getAuthErrorMessage(err));
-    }
+  const startOAuthFlow = (provider: "google" | "github") => {
+    window.location.href = `/api/v1/auth/${provider}/login?role=${role}`;
   };
 
   useEffect(() => {
@@ -244,12 +240,14 @@ function LoginPage() {
               </p>
             ) : (
               <>
-                <p>
-                  Belum punya akun?{" "}
-                  <button type="button" onClick={() => setMode("register")} className="text-primary hover:underline">
-                    Daftar di sini
-                  </button>
-                </p>
+                {role === "consumer" && (
+                  <p>
+                    Belum punya akun?{" "}
+                    <button type="button" onClick={() => setMode("register")} className="text-primary hover:underline">
+                      Daftar di sini
+                    </button>
+                  </p>
+                )}
                 <p className="mt-2">
                   <button type="button" onClick={() => setMode("phone")} className="text-primary hover:underline inline-flex items-center gap-1">
                     <Smartphone size={14} /> Masuk pakai nomor HP
@@ -259,54 +257,52 @@ function LoginPage() {
             )}
           </div>
 
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-ink/10" />
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="bg-[#e8ebe6] px-3 text-mute font-semibold uppercase tracking-wider">
-                atau
-              </span>
-            </div>
-          </div>
+          {role === "consumer" && (
+            <>
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-ink/10" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-[#e8ebe6] px-3 text-mute font-semibold uppercase tracking-wider">
+                    atau
+                  </span>
+                </div>
+              </div>
 
-          <div className="grid gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              className="h-11 w-full justify-center border-hairline-strong bg-canvas shadow-none hover:bg-surface"
-              disabled={false}
-              onClick={() => {
-                void startOAuthFlow("google");
-              }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-4 w-4 mr-2">
-                <path
-                  d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
-                  fill="currentColor"
-                />
-              </svg>
-              Lanjutkan dengan Google
-            </Button>
+              <div className="grid gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 w-full justify-center border-hairline-strong bg-canvas shadow-none hover:bg-surface"
+                  onClick={() => startOAuthFlow("google")}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-4 w-4 mr-2">
+                    <path
+                      d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  Lanjutkan dengan Google
+                </Button>
 
-            <Button
-              type="button"
-              variant="outline"
-              className="h-11 w-full justify-center border-hairline-strong bg-canvas shadow-none hover:bg-surface"
-              disabled={false}
-              onClick={() => {
-                void startOAuthFlow("github");
-              }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-4 w-4 mr-2">
-                <path
-                  d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
-                  fill="currentColor"
-                />
-              </svg>
-              Lanjutkan dengan GitHub
-            </Button>
-          </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 w-full justify-center border-hairline-strong bg-canvas shadow-none hover:bg-surface"
+                  onClick={() => startOAuthFlow("github")}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-4 w-4 mr-2">
+                    <path
+                      d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  Lanjutkan dengan GitHub
+                </Button>
+              </div>
+            </>
+          )}
 
           <p className="text-xs text-mute text-center">
             Dengan lanjut, kamu setuju dengan{" "}

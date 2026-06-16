@@ -1,10 +1,15 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Loader2, AlertCircle } from "lucide-react";
-import { completeOAuthFn, getMeFn } from "@/lib/auth.server";
+import { getMeFn } from "@/lib/auth.server";
 import { useSessionStore, type Role } from "@/stores/useSessionStore";
 
 export const Route = createFileRoute("/auth/complete")({
+  validateSearch: (search: Record<string, string | undefined>) => ({
+    access_token: search.access_token as string | undefined,
+    refresh_token: search.refresh_token as string | undefined,
+    error: search.error as string | undefined,
+  }),
   head: () => ({ meta: [{ title: "Masuk · KerjaDekat" }] }),
   component: AuthCompletePage,
 });
@@ -12,22 +17,26 @@ export const Route = createFileRoute("/auth/complete")({
 function AuthCompletePage() {
   const navigate = useNavigate();
   const { role, setTokens, setProfile } = useSessionStore();
+  const { access_token, refresh_token, error: oauthError } = useSearch({ from: Route.id });
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (oauthError) {
+      setError(decodeURIComponent(oauthError));
+      return;
+    }
+    if (!access_token || !refresh_token) {
+      setError("Tidak ada token OAuth.");
+      return;
+    }
     let cancelled = false;
     (async () => {
-      const res = await completeOAuthFn({ data: { role } });
-      if (cancelled) return;
-      if (!res.ok || !res.data) {
-        setError(res.error ?? "Gagal masuk dengan OAuth");
-        return;
-      }
       setTokens({
-        accessToken: res.data.access_token,
-        refreshToken: res.data.refresh_token,
+        accessToken: access_token,
+        refreshToken: refresh_token,
       });
-      const me = await getMeFn({ data: { accessToken: res.data.access_token } });
+      const me = await getMeFn({ data: { accessToken: access_token } });
+      if (cancelled) return;
       if (me.ok && me.data) {
         const apiRole = me.data.Role as Role;
         setProfile({
@@ -43,7 +52,7 @@ function AuthCompletePage() {
     return () => {
       cancelled = true;
     };
-  }, [navigate, role, setProfile, setTokens]);
+  }, [navigate, role, setProfile, setTokens, access_token, refresh_token, oauthError]);
 
   return (
     <div className="min-h-screen bg-[#e8ebe6] flex items-center justify-center px-6">
