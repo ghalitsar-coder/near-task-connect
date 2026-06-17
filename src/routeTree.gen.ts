@@ -26,6 +26,7 @@ import { Route as AuthOtpRouteImport } from './routes/auth/otp'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthCompleteRouteImport } from './routes/auth/complete'
 import { Route as AgentsRegisterRouteImport } from './routes/agents/register'
+import { Route as AgentsProfileRouteImport } from './routes/agents/profile'
 import { Route as DashboardAgentIndexRouteImport } from './routes/dashboard/_agent.index'
 import { Route as WorkersOrdersIdRouteImport } from './routes/workers/orders.$id'
 import { Route as DashboardAgentTerritoryRouteImport } from './routes/dashboard/_agent.territory'
@@ -124,6 +125,11 @@ const AgentsRegisterRoute = AgentsRegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => AgentsRouteRoute,
 } as any)
+const AgentsProfileRoute = AgentsProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AgentsRouteRoute,
+} as any)
 const DashboardAgentIndexRoute = DashboardAgentIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -192,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/agents': typeof AgentsRouteRouteWithChildren
   '/consumers': typeof ConsumersRouteRouteWithChildren
+  '/agents/profile': typeof AgentsProfileRoute
   '/agents/register': typeof AgentsRegisterRoute
   '/auth/complete': typeof AuthCompleteRoute
   '/auth/login': typeof AuthLoginRoute
@@ -221,6 +228,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/agents/profile': typeof AgentsProfileRoute
   '/agents/register': typeof AgentsRegisterRoute
   '/auth/complete': typeof AuthCompleteRoute
   '/auth/login': typeof AuthLoginRoute
@@ -252,6 +260,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/agents': typeof AgentsRouteRouteWithChildren
   '/consumers': typeof ConsumersRouteRouteWithChildren
+  '/agents/profile': typeof AgentsProfileRoute
   '/agents/register': typeof AgentsRegisterRoute
   '/auth/complete': typeof AuthCompleteRoute
   '/auth/login': typeof AuthLoginRoute
@@ -285,6 +294,7 @@ export interface FileRouteTypes {
     | '/'
     | '/agents'
     | '/consumers'
+    | '/agents/profile'
     | '/agents/register'
     | '/auth/complete'
     | '/auth/login'
@@ -314,6 +324,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/agents/profile'
     | '/agents/register'
     | '/auth/complete'
     | '/auth/login'
@@ -344,6 +355,7 @@ export interface FileRouteTypes {
     | '/'
     | '/agents'
     | '/consumers'
+    | '/agents/profile'
     | '/agents/register'
     | '/auth/complete'
     | '/auth/login'
@@ -508,6 +520,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentsRegisterRouteImport
       parentRoute: typeof AgentsRouteRoute
     }
+    '/agents/profile': {
+      id: '/agents/profile'
+      path: '/profile'
+      fullPath: '/agents/profile'
+      preLoaderRoute: typeof AgentsProfileRouteImport
+      parentRoute: typeof AgentsRouteRoute
+    }
     '/dashboard/_agent/': {
       id: '/dashboard/_agent/'
       path: '/'
@@ -596,11 +615,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AgentsRouteRouteChildren {
+  AgentsProfileRoute: typeof AgentsProfileRoute
   AgentsRegisterRoute: typeof AgentsRegisterRoute
   AgentsIndexRoute: typeof AgentsIndexRoute
 }
 
 const AgentsRouteRouteChildren: AgentsRouteRouteChildren = {
+  AgentsProfileRoute: AgentsProfileRoute,
   AgentsRegisterRoute: AgentsRegisterRoute,
   AgentsIndexRoute: AgentsIndexRoute,
 }

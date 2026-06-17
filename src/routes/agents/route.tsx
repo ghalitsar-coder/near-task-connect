@@ -45,10 +45,17 @@ function AgentLayout() {
           </nav>
 
           <div className="mt-auto rounded-[24px] bg-[#e8ebe6] p-4 text-sm">
-            <div className="font-semibold">{name}</div>
-            <div className="text-xs text-body mt-1 inline-flex items-center gap-1">
-              <MapPin size={12} /> {territoryLabel}
-            </div>
+            <Link to="/agents/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <div className="size-10 rounded-full bg-[#9fe870] flex items-center justify-center font-display font-black text-lg shrink-0">
+                {name[0] ?? "A"}
+              </div>
+              <div className="min-w-0">
+                <div className="font-semibold truncate">{name}</div>
+                <div className="text-xs text-body mt-0.5 inline-flex items-center gap-1">
+                  <MapPin size={12} /> {territoryLabel}
+                </div>
+              </div>
+            </Link>
             <button
               id="agent-sidebar-logout-btn"
               type="button"
@@ -56,7 +63,7 @@ function AgentLayout() {
                 signOut();
                 navigate({ to: "/" });
               }}
-              className="mt-3 text-xs inline-flex items-center gap-1 font-semibold text-[#054d28]"
+              className="mt-3 w-full text-xs inline-flex items-center justify-center gap-1 font-semibold text-[#054d28]"
             >
               <LogOut size={12} /> Keluar
             </button>
